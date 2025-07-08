@@ -17,14 +17,23 @@ export class User {
   @Column({ name: 'emergency_contact_name' })
   emergencyContactName: string;
 
-  @Column({ name: 'emergency_contact_number' })
-  emergencyContactNumber: string;
+  @Column({ name: 'emergency_contact_phone' })
+  emergencyContactPhone: string;
+
+  @Column({ name: 'phone_number' })
+  phoneNumber: string;
 
   @Column({ unique: true })
   email: string;
 
+  @Column({ name: 'confirm_email' })
+  confirmEmail: string;
+
   @Column()
   password: string;
+
+  @Column({ name: 'confirm_password' })
+  confirmPassword: string;
 
   @Column()
   profile: string;

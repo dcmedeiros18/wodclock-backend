@@ -1,10 +1,12 @@
 export class CreateUserDto {
   firstName: string;
   surname: string;
-  dateOfBirth: Date;
   emergencyContactName: string;
-  emergencyContactNumber: string;
+  emergencyContactPhone: string;
+  phoneNumber: string;
   email: string;
+  confirmEmail: string;
   password: string;
+  confirmPassword: string;
   profile: string;
 }
