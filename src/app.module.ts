@@ -5,6 +5,7 @@ import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
 import { WodModule } from './wod/wod.module';
 import { ClassModule } from './class/class.module';
+import { BookModule } from './book/book.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { ClassModule } from './class/class.module';
     UserModule,
     WodModule,
     ClassModule,
+    BookModule,
   ],
   controllers: [AppController],
   providers: [AppService],
