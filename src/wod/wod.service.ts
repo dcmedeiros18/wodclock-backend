@@ -12,8 +12,9 @@ export class WodService {
     private readonly wodRepository: Repository<Wod>,
   ) {}
 
-  create(createWodDto: CreateWodDto) {
-    return this.wodRepository.save(createWodDto);
+  async create(createWodDto: CreateWodDto): Promise<Wod> {
+    const wod = this.wodRepository.create(createWodDto);
+    return this.wodRepository.save(wod);
   }
 
   findAll() {

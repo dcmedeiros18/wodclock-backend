@@ -2,16 +2,17 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { WodService } from './wod.service';
 import { CreateWodDto } from './dto/create-wod.dto';
 import { UpdateWodDto } from './dto/update-wod.dto';
+import { Wod } from './entities/wod.entity'
 
 @Controller('wod')
 export class WodController {
   constructor(private readonly wodService: WodService) {}
 
   @Post()
-  create(@Body() createWodDto: CreateWodDto) {
+  create(@Body() createWodDto: CreateWodDto): Promise<Wod> {
     return this.wodService.create(createWodDto);
   }
-
+  
   @Get()
   findAll() {
     return this.wodService.findAll();
