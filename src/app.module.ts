@@ -6,6 +6,7 @@ import { UserModule } from './user/user.module';
 import { WodModule } from './wod/wod.module';
 import { ClassModule } from './class/class.module';
 import { BookModule } from './book/book.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -15,10 +16,12 @@ import { BookModule } from './book/book.module';
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true,
     }),
+    AuthModule,
     UserModule,
     WodModule,
     ClassModule,
     BookModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
