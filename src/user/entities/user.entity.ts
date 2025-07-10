@@ -41,6 +41,7 @@ export class User {
   @Column({ name: 'confirm_password' })
   confirmPassword: string;
 
+  //Adm , Coach , Membership
   @Column()
   profile: string;
 
