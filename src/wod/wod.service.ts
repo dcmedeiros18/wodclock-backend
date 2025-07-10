@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, Between } from 'typeorm';
 import { CreateWodDto } from './dto/create-wod.dto';
 import { UpdateWodDto } from './dto/update-wod.dto';
 import { Wod } from './entities/wod.entity';
+import { Raw } from 'typeorm';  
 
 @Injectable()
 export class WodService {
@@ -17,8 +18,12 @@ export class WodService {
     return this.wodRepository.save(wod);
   }
 
-  findAll() {
-    return this.wodRepository.find();
+  async findByDate(date: string): Promise<Wod[]> {
+    return this.wodRepository.find({
+      where: {
+        date: Raw(alias => `DATE(${alias}) = DATE(:date)`, { date }),
+      },
+    });
   }
 
   findOne(id: number) {

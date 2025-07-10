@@ -1,7 +1,13 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm';
+import { Book } from '../../book/entities/book.entity';
+import { OneToMany } from 'typeorm';
 
 @Entity()
 export class User {
+  @OneToMany(() => Book, (book) => book.user)
+  bookings: Book[];
+  
+
   @PrimaryGeneratedColumn()
   id: number;
 

@@ -1,5 +1,4 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
-import { Wod } from '../../wod/entities/wod.entity';
 
 @Entity()
 export class Class {
@@ -13,11 +12,7 @@ export class Class {
   time: string;
 
   @Column()
-  maxspots: number;
-
-  @ManyToOne(() => Wod)
-  @JoinColumn({ name: 'wod_id' })
-  wod: Wod;
+  maxspots: number; 
 
   @Column()
   wod_id: number;

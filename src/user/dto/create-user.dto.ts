@@ -1,36 +1,40 @@
-import { IsEmail, IsNotEmpty, MinLength } from 'class-validator';
-import { Match } from '../validators/match.decorator';
+// src/auth/dto/create-user.dto.ts
+import { IsEmail, IsNotEmpty, IsString, Matches } from 'class-validator';
 
 export class CreateUserDto {
   @IsNotEmpty()
+  @IsString()
   firstName: string;
 
   @IsNotEmpty()
+  @IsString()
   surname: string;
 
   @IsNotEmpty()
-  dateOfBirth: Date;
+  dateOfBirth: string;
 
   @IsNotEmpty()
+  @IsString()
   emergencyContactName: string;
 
   @IsNotEmpty()
+  @IsString()
   emergencyContactPhone: string;
 
   @IsNotEmpty()
+  @IsString()
   phoneNumber: string;
 
   @IsEmail()
   email: string;
 
   @IsEmail()
-  @Match('email', { message: 'Emails do not match' })
   confirmEmail: string;
 
-  @MinLength(6)
+  @IsNotEmpty()
   password: string;
 
-  @Match('password', {message: 'Password do not match'})
+  @IsNotEmpty()
   confirmPassword: string;
 
   @IsNotEmpty()

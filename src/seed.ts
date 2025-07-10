@@ -1,66 +1,74 @@
-import { DataSource } from 'typeorm';
-import { User } from './user/entities/user.entity';
-import { Wod } from './wod/entities/wod.entity';
-import { Class } from './class/entities/class.entity';
-import { Book } from './book/entities/book.entity';
-
-const AppDataSource = new DataSource({
-  type: 'sqlite',
-  database: 'database.sqlite',
-  entities: [User, Wod, Class, Book],
-  synchronize: true,
-});
+import * as sqlite3 from 'sqlite3';
+import { open } from 'sqlite';
 
 async function seed() {
-  await AppDataSource.initialize();
-
-  // Usuário
-  const userRepository = AppDataSource.getRepository(User);
-  const user = userRepository.create({
-    firstName: 'João',
-    surname: 'Silva',
-    dateOfBirth: new Date('1990-01-01'),
-    emergencyContactName: 'Maria Silva',
-    emergencyContactPhone: '11999999999',
-    phoneNumber: '11888888888',
-    email: 'joao.silva@email.com',
-    confirmEmail: 'joao.silva@email.com',
-    password: 'senha123',
-    confirmPassword: 'senha123',
-    profile: 'admin',
-    createdAt: new Date(),
+  const db = await open({
+    filename: 'database.sqlite',
+    driver: sqlite3.Database
   });
-  const savedUser = await userRepository.save(user);
 
-  // WOD
-  const wodRepository = AppDataSource.getRepository(Wod);
-  const wod = wodRepository.create({
-    title: 'WOD Fran',
-    description: '21-15-9 reps for time: Thrusters (95/65 lb), Pull-Ups',
-    date: new Date('2025-07-08'),
-  });
-  const savedWod = await wodRepository.save(wod);
+  // Limpar tabela user
+  await db.run('DELETE FROM user');
 
-  // Aula
-  const classRepository = AppDataSource.getRepository(Class);
-  const classInstance = classRepository.create({
-    date: new Date('2025-07-10'),
-    time: '18:00',
-    maxspots: 20,
-    wod_id: savedWod.id,
-  });
-  const savedClass = await classRepository.save(classInstance);
+  // Usuário Admin
+  await db.run(`
+    INSERT INTO user (first_name, surname, date_of_birth, emergency_contact_name, emergency_contact_phone, phone_number, email, confirm_email, password, confirm_password, profile, created_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `, [
+    'João',
+    'Silva',
+    '1990-01-01',
+    'Maria Silva',
+    '11999999999',
+    '11888888888',
+    'joao.silva@email.com',
+    'joao.silva@email.com',
+    'senha123',
+    'senha123',
+    'admin',
+    new Date().toISOString()
+  ]);
 
-  // Reserva (Book)
-  const bookRepository = AppDataSource.getRepository(Book);
-  const book = bookRepository.create({
-    user_id: savedUser.id,
-    class_id: savedClass.id,
-  });
-  await bookRepository.save(book);
+  // Usuário Coach
+  await db.run(`
+    INSERT INTO user (first_name, surname, date_of_birth, emergency_contact_name, emergency_contact_phone, phone_number, email, confirm_email, password, confirm_password, profile, created_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `, [
+    'Seamus',
+    'O\'Connor',
+    '1985-05-15',
+    'Bridget O\'Connor',
+    '11977777777',
+    '11666666666',
+    'seamus.oconnor@email.com',
+    'seamus.oconnor@email.com',
+    'senha123',
+    'senha123',
+    'coach',
+    new Date().toISOString()
+  ]);
 
-  console.log('Carga inicial inserida com sucesso!');
-  await AppDataSource.destroy();
+  // Usuário Membership
+  await db.run(`
+    INSERT INTO user (first_name, surname, date_of_birth, emergency_contact_name, emergency_contact_phone, phone_number, email, confirm_email, password, confirm_password, profile, created_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `, [
+    'Siobhan',
+    'Murphy',
+    '1992-08-20',
+    'Patrick Murphy',
+    '11555555555',
+    '11444444444',
+    'siobhan.murphy@email.com',
+    'siobhan.murphy@email.com',
+    'senha123',
+    'senha123',
+    'membership',
+    new Date().toISOString()
+  ]);
+
+  console.log('Usuários inseridos com sucesso!');
+  await db.close();
 }
 
 seed(); 

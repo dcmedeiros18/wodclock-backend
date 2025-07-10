@@ -1,4 +1,13 @@
+import { IsDateString, IsNotEmpty } from 'class-validator';
+
 export class CreateBookDto {
-  user_id: number;
-  class_id: number;
-} 
+  @IsDateString()
+  date: string;
+
+  @IsNotEmpty()
+  time: string;
+
+  @IsNotEmpty()
+  classId: number;
+
+}

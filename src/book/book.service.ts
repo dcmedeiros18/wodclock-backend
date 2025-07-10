@@ -13,7 +13,13 @@ export class BookService {
   ) {}
 
   create(createBookDto: CreateBookDto) {
-    return this.bookRepository.save(createBookDto);
+    // Mapear os campos corretamente para a entidade Book
+    const book = this.bookRepository.create({
+      class_id: createBookDto.classId,
+      // user_id deve ser preenchido pelo backend, se necessário
+      // created_at será preenchido automaticamente
+    });
+    return this.bookRepository.save(book);
   }
 
   findAll() {
@@ -25,7 +31,11 @@ export class BookService {
   }
 
   update(id: number, updateBookDto: UpdateBookDto) {
-    return this.bookRepository.update(id, updateBookDto);
+    // Garantir que só os campos válidos sejam atualizados
+    const updateData: Partial<Book> = {};
+    if (updateBookDto.classId !== undefined) updateData.class_id = updateBookDto.classId;
+    // user_id não é atualizado pelo DTO
+    return this.bookRepository.update(id, updateData);
   }
 
   remove(id: number) {
