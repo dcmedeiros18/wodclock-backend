@@ -13,9 +13,9 @@ export class WodService {
     private readonly wodRepository: Repository<Wod>,
   ) {}
 
-  async create(createWodDto: CreateWodDto): Promise<Wod> {
-    const wod = this.wodRepository.create(createWodDto);
-    return this.wodRepository.save(wod);
+  async create(wodDto: CreateWodDto): Promise<Wod> {
+    const wod = this.wodRepository.create(wodDto);
+    return await this.wodRepository.save(wod);
   }
 
   async findByDate(date: string): Promise<Wod | null> {
@@ -29,15 +29,10 @@ export class WodService {
   
   
 
-  async updateByDate(date: string, newDescription: string) {
-    const wod = await this.wodRepository
-      .createQueryBuilder('wod')
-      .where('DATE(wod.date) = :date', { date })
-      .getOne();
-  
+  async updateByDate(date: string, data: Partial<CreateWodDto>): Promise<Wod> {
+    const wod = await this.wodRepository.findOne({ where: { date } });
     if (!wod) throw new NotFoundException('WOD not found');
-  
-    wod.description = newDescription;
+    Object.assign(wod, data);
     return this.wodRepository.save(wod);
   }
   
@@ -54,5 +49,13 @@ export class WodService {
 
   remove(id: number) {
     return this.wodRepository.delete(id);
+  }
+
+  async deleteByDate(date: string) {
+    return this.wodRepository
+      .createQueryBuilder()
+      .delete()
+      .where('DATE(date) = DATE(:date)', { date })
+      .execute();
   }
 }

@@ -9,8 +9,8 @@ export class WodController {
   constructor(private readonly wodService: WodService) {}
 
   @Post()
-  create(@Body() createWodDto: CreateWodDto) {
-    return this.wodService.create(createWodDto);
+  create(@Body() wodDto: CreateWodDto) {
+    return this.wodService.create(wodDto);
   }
 
   @Get()
@@ -29,16 +29,16 @@ export class WodController {
     return this.wodService.update(+id, updateWodDto);
   }
 
-  @Delete(':id')
+  @Delete('')
   @Roles('admin', 'coach') 
-  remove(@Param('id') id: string) {
-    return this.wodService.remove(+id);
+  deleteByDate(@Query('date') date: string) {
+    return this.wodService.deleteByDate(date);
   }
 
   @Put(':date')
   @Roles('admin', 'coach')
-  updateWodByDate(@Param('date') date: string, @Body() body: { description: string }) {
-  return this.wodService.updateByDate(date, body.description);
-}
+  updateByDate(@Param('date') date: string, @Body() data: Partial<CreateWodDto>) {
+    return this.wodService.updateByDate(date, data);
+  }
 
 }
