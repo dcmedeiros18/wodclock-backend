@@ -11,6 +11,6 @@ export class Wod {
   @Column('text')
   description: string;
 
-  @Column({ type: 'date' })
-  date: Date;
+  @Column({ type: 'varchar' })
+  date: String;
 }

@@ -1,10 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Put, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { WodService } from './wod.service';
 import { CreateWodDto } from './dto/create-wod.dto';
 import { UpdateWodDto } from './dto/update-wod.dto';
 import { Roles } from '../auth/roles.decorator';
 
-@Controller('wod')
+@Controller('api/wods')
 export class WodController {
   constructor(private readonly wodService: WodService) {}
 
@@ -18,9 +18,9 @@ export class WodController {
     return this.wodService.findByDate(date);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.wodService.findOne(+id);
+  @Get('')
+  findOne(@Query('date') date: string) {
+    return this.wodService.findByDate(date);
   }
 
   @Patch(':id')
@@ -34,4 +34,11 @@ export class WodController {
   remove(@Param('id') id: string) {
     return this.wodService.remove(+id);
   }
+
+  @Put(':date')
+  @Roles('admin', 'coach')
+  updateWodByDate(@Param('date') date: string, @Body() body: { description: string }) {
+  return this.wodService.updateByDate(date, body.description);
+}
+
 }
