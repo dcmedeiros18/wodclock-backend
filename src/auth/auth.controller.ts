@@ -14,15 +14,12 @@ export class AuthController {
     return this.authService.login(loginDto);
   }
 
-
-
   @UseGuards(AuthGuard('jwt'))
   @Get('me')
   getProfile(@Request() req) {
     return req.user;
   }
   
-
   @Post('register')
   register(@Body() dto: CreateUserDto) {
     return this.authService.register(dto);
