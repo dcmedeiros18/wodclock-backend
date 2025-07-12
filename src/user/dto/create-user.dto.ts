@@ -26,10 +26,11 @@ export class CreateUserDto {
   @IsString()
   emergencyContactPhone: string;  
 
-  @IsEmail()
+  @IsEmail({}, { message: 'Enter a valid email address.' })
   email: string;
 
-  @IsEmail()
+  @IsEmail({}, { message: 'Enter a valid email address.' })
+  @Match('email', { message: 'Emails do not match.' })
   confirmEmail: string;
 
   @IsNotEmpty()
