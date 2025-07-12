@@ -26,6 +26,7 @@ export class AuthService {
     
       const existing = await this.userRepository.findOne({ where: { email: dto.email } });
       if (existing) {
+        // Retorna apenas a mensagem simples, sem detalhes extras
         throw new BadRequestException('Email already registered');
       }
     

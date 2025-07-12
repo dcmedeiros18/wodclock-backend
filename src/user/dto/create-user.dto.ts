@@ -15,15 +15,15 @@ export class CreateUserDto {
 
   @IsNotEmpty()
   @IsString()
+  phoneNumber: string;
+
+  @IsNotEmpty()
+  @IsString()
   emergencyContactName: string;
 
   @IsNotEmpty()
   @IsString()
-  emergencyContactPhone: string;
-
-  @IsNotEmpty()
-  @IsString()
-  phoneNumber: string;
+  emergencyContactPhone: string;  
 
   @IsEmail()
   email: string;
