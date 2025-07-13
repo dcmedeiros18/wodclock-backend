@@ -4,6 +4,7 @@ import { Repository, Between } from 'typeorm';
 import { Booking } from './entities/book.entity';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
+import { BadRequestException } from '@nestjs/common';
 
 @Injectable()
 export class BookingsService {
@@ -12,13 +13,32 @@ export class BookingsService {
     private bookingRepo: Repository<Booking>,
   ) {}
 
-  async book(classId: number, userId: number): Promise<Booking> {
+  async book(classId: number, userId: number): Promise<{ message: string; booking?: Booking }> {
+    // Verifica se já existe agendamento
+    const existing = await this.bookingRepo.findOne({
+      where: {
+        user: { id: userId },
+        class: { id: classId }
+      },
+      relations: ['class']
+    });
+    if (existing) {
+      throw new BadRequestException(`You have already booked a class on ${existing.class?.date || ''} at ${existing.class?.time || ''}.`);
+    }
     const booking = this.bookingRepo.create({
       user: { id: userId },
       class: { id: classId },
     });
-
-    return this.bookingRepo.save(booking);
+    const saved = await this.bookingRepo.save(booking);
+    // Buscar a aula para pegar data e hora
+    const bookedClass = await this.bookingRepo.findOne({
+      where: { id: saved.id },
+      relations: ['class']
+    });
+    return {
+      message: `Class successfully booked for ${bookedClass?.class?.date || ''} at ${bookedClass?.class?.time || ''}.`,
+      booking: saved
+    };
   }
 
 

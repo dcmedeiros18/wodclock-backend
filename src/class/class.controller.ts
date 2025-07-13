@@ -63,7 +63,8 @@ export class ClassController {
       const classes = await this.classService.findByDate(date, req.user.id);
       return classes.map(cls => ({
         ...cls,
-        spotsLeft: cls.maxspots - (cls.bookings ? cls.bookings.length : 0)
+        spotsLeft: cls.maxspots - (cls.bookings ? cls.bookings.length : 0),
+        alreadyBooked: cls.bookings ? cls.bookings.some(b => b.user && b.user.id === req.user.id) : false
       }));
     } catch (error) {
       if (error instanceof HttpException) {

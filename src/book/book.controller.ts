@@ -16,9 +16,9 @@ export class BookController {
   
   @Post()
   @UseGuards(AuthGuard('jwt'))
-  async create(@Body() dto: CreateBookDto, @Req() req) {
-    const userId = req.user.id; // ← vem do JWT
-    return this.bookingsService.book(dto.classId, userId);
+  async book(@Body() dto: CreateBookDto, @Req() req) {
+    const result = await this.bookingsService.book(dto.classId, req.user.id);
+    return { message: result.message, booking: result.booking };
   }
 
 
