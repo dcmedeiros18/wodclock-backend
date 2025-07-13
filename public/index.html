@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WodClock - Gerenciamento de Aulas e Reservas</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1><i class="fas fa-dumbbell"></i> WodClock</h1>
+            <nav class="nav">
+                <button class="nav-btn active" data-tab="classes">Aulas</button>
+                <button class="nav-btn" data-tab="bookings">Reservas</button>
+                <button class="nav-btn" data-tab="wods">WODs</button>
+            </nav>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Classes Tab -->
+            <div id="classes" class="tab-content active">
+                <div class="section-header">
+                    <h2>Gerenciar Aulas</h2>
+                    <button class="btn btn-primary" onclick="openClassModal()">
+                        <i class="fas fa-plus"></i> Nova Aula
+                    </button>
+                </div>
+
+                <div class="filters">
+                    <input type="date" id="classDateFilter" class="input" placeholder="Filtrar por data">
+                    <button class="btn btn-secondary" onclick="filterClasses()">
+                        <i class="fas fa-filter"></i> Filtrar
+                    </button>
+                </div>
+
+                <div class="cards-container" id="classesContainer">
+                    <!-- Classes will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Bookings Tab -->
+            <div id="bookings" class="tab-content">
+                <div class="section-header">
+                    <h2>Gerenciar Reservas</h2>
+                    <button class="btn btn-primary" onclick="openBookingModal()">
+                        <i class="fas fa-plus"></i> Nova Reserva
+                    </button>
+                </div>
+
+                <div class="filters">
+                    <select id="bookingUserFilter" class="input">
+                        <option value="">Todos os usuários</option>
+                    </select>
+                    <input type="date" id="bookingDateFilter" class="input">
+                    <button class="btn btn-secondary" onclick="filterBookings()">
+                        <i class="fas fa-filter"></i> Filtrar
+                    </button>
+                </div>
+
+                <div class="cards-container" id="bookingsContainer">
+                    <!-- Bookings will be loaded here -->
+                </div>
+            </div>
+
+            <!-- WODs Tab -->
+            <div id="wods" class="tab-content">
+                <div class="section-header">
+                    <h2>Gerenciar WODs</h2>
+                    <button class="btn btn-primary" onclick="openWodModal()">
+                        <i class="fas fa-plus"></i> Novo WOD
+                    </button>
+                </div>
+
+                <div class="cards-container" id="wodsContainer">
+                    <!-- WODs will be loaded here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Class Modal -->
+    <div id="classModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="classModalTitle">Nova Aula</h3>
+                <span class="close" onclick="closeClassModal()">&times;</span>
+            </div>
+            <form id="classForm" class="form">
+                <div class="form-group">
+                    <label for="classDate">Data:</label>
+                    <input type="date" id="classDate" class="input" required>
+                </div>
+                <div class="form-group">
+                    <label for="classTime">Horário:</label>
+                    <input type="time" id="classTime" class="input" required>
+                </div>
+                <div class="form-group">
+                    <label for="classMaxSpots">Vagas Máximas:</label>
+                    <input type="number" id="classMaxSpots" class="input" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label for="classWodId">WOD:</label>
+                    <select id="classWodId" class="input" required>
+                        <option value="">Selecione um WOD</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeClassModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Booking Modal -->
+    <div id="bookingModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="bookingModalTitle">Nova Reserva</h3>
+                <span class="close" onclick="closeBookingModal()">&times;</span>
+            </div>
+            <form id="bookingForm" class="form">
+                <div class="form-group">
+                    <label for="bookingUserId">Usuário:</label>
+                    <select id="bookingUserId" class="input" required>
+                        <option value="">Selecione um usuário</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="bookingClassId">Aula:</label>
+                    <select id="bookingClassId" class="input" required>
+                        <option value="">Selecione uma aula</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeBookingModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Reservar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- WOD Modal -->
+    <div id="wodModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="wodModalTitle">Novo WOD</h3>
+                <span class="close" onclick="closeWodModal()">&times;</span>
+            </div>
+            <form id="wodForm" class="form">
+                <div class="form-group">
+                    <label for="wodTitle">Título:</label>
+                    <input type="text" id="wodTitle" class="input" required>
+                </div>
+                <div class="form-group">
+                    <label for="wodDescription">Descrição:</label>
+                    <textarea id="wodDescription" class="input" rows="4" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="wodDate">Data:</label>
+                    <input type="date" id="wodDate" class="input" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeWodModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <script src="script.js"></script>
+</body>
+</html> 

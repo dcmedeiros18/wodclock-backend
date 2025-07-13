@@ -1,26 +1,18 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, CreateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, ManyToOne, CreateDateColumn } from 'typeorm';
 import { User } from '../../user/entities/user.entity';
 import { Class } from '../../class/entities/class.entity';
 
-@Entity()
-export class Book {
+@Entity('book')
+export class Booking {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => User)
-  @JoinColumn({ name: 'user_id' })
+  @ManyToOne(() => User, user => user.bookings)
   user: User;
 
-  @Column()
-  user_id: number;
-
   @ManyToOne(() => Class)
-  @JoinColumn({ name: 'class_id' })
   class: Class;
 
-  @Column()
-  class_id: number;
-
-  @CreateDateColumn({ name: 'created_at' })
+  @CreateDateColumn()
   created_at: Date;
-} 
+}

@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
+import { Booking } from '../../book/entities/book.entity';
 
 @Entity()
 export class Class {
@@ -13,6 +14,9 @@ export class Class {
 
   @Column()
   maxspots: number; 
+
+  @OneToMany(() => Booking, booking => booking.class)
+  bookings: Booking[];
 
   @Column()
   wod_id: number;

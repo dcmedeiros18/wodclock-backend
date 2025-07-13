@@ -1,6 +1,15 @@
+import { IsDateString, IsString, IsNumber } from 'class-validator';
+
 export class CreateClassDto {
-  date: Date;
+  @IsDateString()
+  date: string;
+
+  @IsString()
   time: string;
+
+  @IsNumber()
   maxspots: number;
+
+  @IsNumber()
   wod_id: number;
 }

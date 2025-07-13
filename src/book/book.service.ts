@@ -1,44 +1,59 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, Between } from 'typeorm';
+import { Booking } from './entities/book.entity';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
-import { Book } from './entities/book.entity';
 
 @Injectable()
-export class BookService {
+export class BookingsService {
   constructor(
-    @InjectRepository(Book)
-    private readonly bookRepository: Repository<Book>,
+    @InjectRepository(Booking)
+    private bookingRepo: Repository<Booking>,
   ) {}
 
-  create(createBookDto: CreateBookDto) {
-    // Mapear os campos corretamente para a entidade Book
-    const book = this.bookRepository.create({
-      class_id: createBookDto.classId,
-      // user_id deve ser preenchido pelo backend, se necessário
-      // created_at será preenchido automaticamente
+  async book(classId: number, userId: number): Promise<Booking> {
+    const booking = this.bookingRepo.create({
+      user: { id: userId },
+      class: { id: classId },
     });
-    return this.bookRepository.save(book);
+
+    return this.bookingRepo.save(booking);
+  }
+
+
+  async getUserFrequency(userId: number, start: string, end: string): Promise<Booking[]> {
+    return this.bookingRepo.find({
+      where: {
+        user: { id: userId },
+        class: {
+          date: Between(new Date(start), new Date(end))
+        }
+      },
+      relations: ['class']
+    });
   }
 
   findAll() {
-    return this.bookRepository.find();
+    return this.bookingRepo.find();
   }
 
   findOne(id: number) {
-    return this.bookRepository.findOneBy({ id });
+    return this.bookingRepo.findOneBy({ id });
   }
 
-  update(id: number, updateBookDto: UpdateBookDto) {
-    // Garantir que só os campos válidos sejam atualizados
-    const updateData: Partial<Book> = {};
-    if (updateBookDto.classId !== undefined) updateData.class_id = updateBookDto.classId;
-    // user_id não é atualizado pelo DTO
-    return this.bookRepository.update(id, updateData);
+  async update(id: number, updateBookDto: UpdateBookDto) {
+    const updateData: any = {};
+    if (updateBookDto.classId) {
+      updateData.class = { id: updateBookDto.classId };
+    }
+    if (updateBookDto.userId) {
+      updateData.user = { id: updateBookDto.userId };
+    }
+    return this.bookingRepo.update(id, updateData);
   }
 
   remove(id: number) {
-    return this.bookRepository.delete(id);
+    return this.bookingRepo.delete(id);
   }
-} 
+}

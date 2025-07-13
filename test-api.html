@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teste API Classes</title>
+</head>
+<body>
+    <h1>Teste API Classes</h1>
+    
+    <h2>Teste 1: Buscar classes por data (query parameter)</h2>
+    <button onclick="testByDateQuery()">Testar /api/classes/by-date?date=2025-07-12</button>
+    <div id="result1"></div>
+    
+    <h2>Teste 2: Buscar classes por data (path parameter)</h2>
+    <button onclick="testByDatePath()">Testar /api/classes/date/2025-07-12</button>
+    <div id="result2"></div>
+    
+    <h2>Teste 3: Debug - todas as classes</h2>
+    <button onclick="testDebug()">Testar /api/classes/debug</button>
+    <div id="result3"></div>
+
+    <script>
+        async function testByDateQuery() {
+            try {
+                const response = await fetch('/api/classes/by-date?date=2025-07-12');
+                const data = await response.json();
+                document.getElementById('result1').innerHTML = 
+                    `<pre>Status: ${response.status}\n${JSON.stringify(data, null, 2)}</pre>`;
+            } catch (error) {
+                document.getElementById('result1').innerHTML = 
+                    `<pre>Erro: ${error.message}</pre>`;
+            }
+        }
+        
+        async function testByDatePath() {
+            try {
+                const response = await fetch('/api/classes/date/2025-07-12');
+                const data = await response.json();
+                document.getElementById('result2').innerHTML = 
+                    `<pre>Status: ${response.status}\n${JSON.stringify(data, null, 2)}</pre>`;
+            } catch (error) {
+                document.getElementById('result2').innerHTML = 
+                    `<pre>Erro: ${error.message}</pre>`;
+            }
+        }
+        
+        async function testDebug() {
+            try {
+                const response = await fetch('/api/classes/debug');
+                const data = await response.json();
+                document.getElementById('result3').innerHTML = 
+                    `<pre>Status: ${response.status}\n${JSON.stringify(data, null, 2)}</pre>`;
+            } catch (error) {
+                document.getElementById('result3').innerHTML = 
+                    `<pre>Erro: ${error.message}</pre>`;
+            }
+        }
+    </script>
+</body>
+</html> 

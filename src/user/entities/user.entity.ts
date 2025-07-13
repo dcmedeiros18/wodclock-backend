@@ -1,11 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm';
-import { Book } from '../../book/entities/book.entity';
-import { OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, OneToMany } from 'typeorm';
+import { Booking } from '../../book/entities/book.entity';
 
 @Entity()
 export class User {
-  @OneToMany(() => Book, (book) => book.user)
-  bookings: Book[];
+  @OneToMany(() => Booking, (booking) => booking.user)
+  bookings: Booking[];
   
 
   @PrimaryGeneratedColumn()

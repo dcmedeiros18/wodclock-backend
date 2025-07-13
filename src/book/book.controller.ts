@@ -1,34 +1,53 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { BookService } from './book.service';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, Req } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+import { BookingsService } from './book.service';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
 
-@Controller('book')
+@Controller('api/bookings')
 export class BookController {
-  constructor(private readonly bookService: BookService) {}
+  constructor(private readonly bookingsService: BookingsService) {}
 
+  @Get('test')
+  getTest(): string {
+    return 'Book route is working!';
+  }
+
+  
   @Post()
-  create(@Body() createBookDto: CreateBookDto) {
-    return this.bookService.create(createBookDto);
+  @UseGuards(AuthGuard('jwt'))
+  async create(@Body() dto: CreateBookDto, @Req() req) {
+    const userId = req.user.id; // ← vem do JWT
+    return this.bookingsService.book(dto.classId, userId);
+  }
+
+
+  @Get('frequency')
+  async frequency(
+    @Query('userId') userId: number,
+    @Query('start') start: string,
+    @Query('end') end: string
+  ) {
+    return this.bookingsService.getUserFrequency(userId, start, end);
   }
 
   @Get()
   findAll() {
-    return this.bookService.findAll();
+    return this.bookingsService.findAll();
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.bookService.findOne(+id);
+    return this.bookingsService.findOne(+id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateBookDto: UpdateBookDto) {
-    return this.bookService.update(+id, updateBookDto);
+    return this.bookingsService.update(+id, updateBookDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.bookService.remove(+id);
+    return this.bookingsService.remove(+id);
   }
-} 
+}

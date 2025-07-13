@@ -1,13 +1,8 @@
-import { IsDateString, IsNotEmpty } from 'class-validator';
+import { IsNumber } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class CreateBookDto {
-  @IsDateString()
-  date: string;
-
-  @IsNotEmpty()
-  time: string;
-
-  @IsNotEmpty()
+  @IsNumber()
+  @Type(() => Number)
   classId: number;
-
 }

@@ -5,8 +5,8 @@ import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
 import { WodModule } from './wod/wod.module';
 import { ClassModule } from './class/class.module';
-import { BookModule } from './book/book.module';
 import { AuthModule } from './auth/auth.module';
+import { BookModule } from './book/book.module';
 
 @Module({
   imports: [
@@ -21,7 +21,6 @@ import { AuthModule } from './auth/auth.module';
     WodModule,
     ClassModule,
     BookModule,
-    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
