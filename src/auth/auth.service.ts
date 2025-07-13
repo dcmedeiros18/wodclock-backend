@@ -62,13 +62,13 @@ export class AuthService {
         const user = await this.userRepository.findOneBy({ email });
     
         if (!user) {
-          throw new UnauthorizedException('Invalid credentials');
+          throw new UnauthorizedException('User not found.');
         }
     
         const isPasswordValid = await bcrypt.compare(password, user.password);
     
         if (!isPasswordValid) {
-          throw new UnauthorizedException('Invalid credentials');
+          throw new UnauthorizedException('Incorrect password.');
         }
 
         const payload = { sub: user.id, email: user.email, profile: user.profile };
