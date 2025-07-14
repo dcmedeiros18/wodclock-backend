@@ -54,12 +54,17 @@ function switchTab(tabName) {
 
 // API Functions
 async function apiRequest(endpoint, options = {}) {
+    const token = localStorage.getItem('token');
+    const headers = {
+        'Content-Type': 'application/json',
+        ...options.headers,
+    };
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    }
     try {
         const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-            headers: {
-                'Content-Type': 'application/json',
-                ...options.headers
-            },
+            headers,
             ...options
         });
 
@@ -404,12 +409,11 @@ function filterBookings() {
 
     const container = document.getElementById('bookingsContainer');
     
-    if (filteredBookings.length === 0) {
+    if (dateFilter && filteredBookings.length === 0) {
         container.innerHTML = `
             <div class="empty-state">
-                <i class="fas fa-search"></i>
-                <h3>Nenhuma reserva encontrada</h3>
-                <p>Não há reservas para os filtros selecionados.</p>
+                <i class="fas fa-calendar-times"></i>
+                <h3>You have no bookings for the selected date.</h3>
             </div>
         `;
         return;
@@ -424,8 +428,8 @@ function filterBookings() {
                 <div class="card-header">
                     <h3 class="card-title">Reserva #${booking.id}</h3>
                     <div class="card-actions">
-                        <button class="btn btn-danger" onclick="deleteBooking(${booking.id})">
-                            <i class="fas fa-trash"></i>
+                        <button class="btn btn-danger" onclick="handleCancelBooking(${booking.id})">
+                            Cancel Booking
                         </button>
                     </div>
                 </div>
@@ -448,6 +452,39 @@ function filterBookings() {
             </div>
         `;
     }).join('');
+}
+
+// Função para cancelar reserva com verificação de tempo
+async function handleCancelBooking(id) {
+    const booking = bookings.find(b => b.id === id);
+    if (!booking) return;
+    const classItem = classes.find(c => c.id === booking.class?.id);
+    if (!classItem) return;
+
+    // Combina data e hora da aula
+    const classDateTime = new Date(`${classItem.date}T${classItem.time}`);
+    const now = new Date();
+    const diffMinutes = (classDateTime - now) / (1000 * 60);
+
+    if (diffMinutes <= 120) {
+        showToast('Bookings can only be cancelled at least 2 hours before the scheduled time.', 'error');
+        return;
+    }
+
+    if (!confirm(`Tem certeza que deseja cancelar esta reserva?`)) {
+        return;
+    }
+
+    try {
+        await apiRequest(`/api/bookings/${id}`, {
+            method: 'DELETE'
+        });
+        bookings = bookings.filter(b => b.id !== id);
+        filterBookings();
+        showToast(`Booking successfully cancelled for ${formatDate(classItem.date)} at ${classItem.time}.`, 'success');
+    } catch (error) {
+        console.error('Failed to delete booking:', error);
+    }
 }
 
 // WODs
@@ -703,3 +740,4 @@ window.deleteClass = deleteClass;
 window.deleteBooking = deleteBooking;
 window.editClass = (id) => openClassModal(id);
 window.editWod = (id) => openWodModal(id); 
+window.handleCancelBooking = handleCancelBooking; 

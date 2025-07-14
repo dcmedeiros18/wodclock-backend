@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, ManyToOne, CreateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, ManyToOne, CreateDateColumn, OneToMany } from 'typeorm';
 import { User } from '../../user/entities/user.entity';
 import { Class } from '../../class/entities/class.entity';
 
@@ -7,11 +7,15 @@ export class Booking {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => User, user => user.bookings)
-  user: User;
+  @ManyToOne(() => User, user => user.bookings, { eager: false })
+user: User;
 
   @ManyToOne(() => Class)
   class: Class;
+
+  @OneToMany(() => Booking, booking => booking.user)
+  bookings: Booking[];
+
 
   @CreateDateColumn()
   created_at: Date;

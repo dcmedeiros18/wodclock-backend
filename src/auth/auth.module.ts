@@ -5,17 +5,20 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { JwtModule } from '@nestjs/jwt'; 
 import { JwtStrategy } from './jwt.strategy';
+import { Booking } from 'src/book/entities/book.entity';
+import { BookController } from 'src/book/book.controller';
+import { BookingsService } from 'src/book/book.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, Booking]),
     JwtModule.register({
       secret: 'jwt_secret_key', // depois coloque no .env
       signOptions: { expiresIn: '1h' },
     }),
   ],
-  providers: [AuthService, JwtStrategy],
-  controllers: [AuthController],
-  exports: [AuthService]
+  providers: [AuthService, JwtStrategy, BookingsService],
+  controllers: [AuthController, BookController],
+  exports: [AuthService, BookingsService]
 })
 export class AuthModule {}

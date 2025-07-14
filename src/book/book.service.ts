@@ -54,6 +54,29 @@ export class BookingsService {
     });
   }
 
+  async findByUserId(userId: number) {
+    console.log('ID RECEBIDO:', userId);
+    const bookings = await this.bookingRepo.find({
+      where: { user: { id: Number(userId) } }, // forçando número
+      relations: ['class'],
+    });
+    console.log('BOOKINGS ENCONTRADOS:', bookings);
+    return bookings;
+
+    try {
+      const bookings = await this.bookingRepo.find({
+        where: { user: { id: Number(userId) } },
+        relations: ['class'],
+      });
+      return bookings;
+    } catch (err) {
+      console.error('ERRO AO BUSCAR BOOKINGS:', err);
+      throw new BadRequestException('Erro ao buscar reservas do usuário');
+    }
+    
+  }
+
+  
   findAll() {
     return this.bookingRepo.find();
   }

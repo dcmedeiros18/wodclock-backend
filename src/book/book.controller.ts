@@ -31,6 +31,13 @@ export class BookController {
     return this.bookingsService.getUserFrequency(userId, start, end);
   }
 
+  @Get('user')
+  @UseGuards(AuthGuard('jwt'))
+  async getUserBookings(@Req() req) {
+    console.log('REQ.USER BACKEND:', req.user);
+    return this.bookingsService.findByUserId(req.user.id);
+  }
+
   @Get()
   findAll() {
     return this.bookingsService.findAll();
