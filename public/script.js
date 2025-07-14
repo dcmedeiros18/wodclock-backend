@@ -300,6 +300,131 @@ function filterClasses() {
         });
 }
 
+// Função utilitária para verificar perfil
+function isAdminOrCoach() {
+    return currentUser && (currentUser.profile === 'admin' || currentUser.profile === 'coach');
+}
+
+// Filtro e renderização especial para ADMIN/COACH
+function filterAndRenderClassesForAdmin(dateFilter) {
+    apiRequest(`/api/classes/by-date?date=${dateFilter}`)
+        .then(filteredClasses => {
+            // Filtrar apenas aulas que ainda não começaram (corrigindo fuso/UTC)
+            const now = new Date();
+            const upcoming = filteredClasses.filter(classItem => {
+                // Garantir formato correto: YYYY-MM-DDTHH:mm:00 (segundos opcionais)
+                let dateStr = classItem.date;
+                let timeStr = classItem.time;
+                if (timeStr.length === 5) timeStr += ':00'; // garantir segundos
+                // Montar string local sem UTC
+                const classDateTime = new Date(`${dateStr}T${timeStr}`);
+                // Se a data for inválida, não exibe
+                if (isNaN(classDateTime.getTime())) return false;
+                // Considerar tolerância de 1 minuto para evitar problemas de milissegundos
+                return classDateTime.getTime() > now.getTime() + 60000;
+            });
+            renderAdminClassList(upcoming, dateFilter);
+        })
+        .catch(error => {
+            console.error('Error filtering classes:', error);
+            showToast('Erro ao filtrar aulas', 'error');
+        });
+}
+
+// Renderização da lista com seleção múltipla
+function renderAdminClassList(classList, dateFilter) {
+    const container = document.getElementById('classesContainer');
+    if (classList.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-calendar-times"></i>
+                <h3>Nenhuma aula futura para o dia selecionado.</h3>
+            </div>
+        `;
+        return;
+    }
+    container.innerHTML = `
+        <form id="adminCancelForm">
+            <div style="margin-bottom: 16px;">
+                <button type="button" class="btn btn-danger" onclick="openAdminCancelModal()">Cancel Selected</button>
+            </div>
+            ${classList.map(classItem => `
+                <div class="card">
+                    <div class="card-header">
+                        <input type="checkbox" class="admin-cancel-checkbox" value="${classItem.id}" />
+                        <span style="margin-left:8px;"><b>Aula #${classItem.id}</b> - ${formatDate(classItem.date)} ${classItem.time}</span>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-info">
+                            <div class="info-item">
+                                <span class="info-label">Vagas:</span>
+                                <span class="info-value">${classItem.maxspots}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">WOD ID:</span>
+                                <span class="info-value">${classItem.wod_id}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('')}
+        </form>
+        <div id="adminCancelModal" class="modal" style="display:none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Do you really want to cancel the following classes?</h3>
+                </div>
+                <div class="modal-body" id="adminCancelModalBody"></div>
+                <div class="form-actions">
+                    <button class="btn btn-secondary" onclick="closeAdminCancelModal()">No</button>
+                    <button class="btn btn-danger" onclick="confirmAdminCancel()">Yes</button>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// Função chamada ao clicar em "Cancel Selected"
+window.openAdminCancelModal = function() {
+    const checkboxes = document.querySelectorAll('.admin-cancel-checkbox:checked');
+    if (checkboxes.length === 0) {
+        showToast('Selecione pelo menos uma aula para cancelar.', 'error');
+        return;
+    }
+    const selectedIds = Array.from(checkboxes).map(cb => cb.value);
+    const classList = Array.from(checkboxes).map(cb => {
+        const card = cb.closest('.card');
+        const header = card.querySelector('.card-header span').textContent;
+        return header;
+    });
+    document.getElementById('adminCancelModalBody').innerHTML = classList.map(txt => `<div>${txt}</div>`).join('');
+    document.getElementById('adminCancelModal').style.display = 'block';
+}
+window.closeAdminCancelModal = function() {
+    document.getElementById('adminCancelModal').style.display = 'none';
+}
+window.confirmAdminCancel = async function() {
+    const checkboxes = document.querySelectorAll('.admin-cancel-checkbox:checked');
+    const selectedIds = Array.from(checkboxes).map(cb => cb.value);
+    if (selectedIds.length === 0) {
+        showToast('Nenhuma aula selecionada.', 'error');
+        closeAdminCancelModal();
+        return;
+    }
+    try {
+        await Promise.all(selectedIds.map(id => apiRequest(`/api/classes/${id}`, { method: 'DELETE' })));
+        // Remover da tela
+        selectedIds.forEach(id => {
+            const card = document.querySelector(`.admin-cancel-checkbox[value="${id}"]`).closest('.card');
+            card.remove();
+        });
+        showToast('Aulas canceladas com sucesso!', 'success');
+        closeAdminCancelModal();
+    } catch (error) {
+        showToast('Erro ao cancelar aulas.', 'error');
+    }
+}
+
 // Bookings
 async function loadBookings() {
     try {
