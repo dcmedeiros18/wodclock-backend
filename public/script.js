@@ -459,14 +459,16 @@ function renderBookings() {
     container.innerHTML = bookings.map(booking => {
         const user = users.find(u => u.id === booking.user?.id);
         const classItem = classes.find(c => c.id === booking.class?.id);
-        
+        const isClassCancelled = classItem && classItem.status === 'cancelled';
+        const isBookingCancelled = booking.status === 'cancelled';
+        const isUnavailable = isClassCancelled || isBookingCancelled;
         return `
-            <div class="card">
+            <div class="card${isUnavailable ? ' cancelled-booking' : ''}">
                 <div class="card-header">
                     <h3 class="card-title">Reserva #${booking.id}</h3>
                     <div class="card-actions">
-                        <button class="btn btn-danger" onclick="deleteBooking(${booking.id})">
-                            <i class="fas fa-trash"></i>
+                        <button class="btn btn-danger" onclick="handleCancelBooking(${booking.id})" ${isUnavailable ? 'disabled' : ''}>
+                            Cancel Booking
                         </button>
                     </div>
                 </div>
@@ -478,7 +480,7 @@ function renderBookings() {
                         </div>
                         <div class="info-item">
                             <span class="info-label">Aula:</span>
-                            <span class="info-value">${classItem ? `Aula #${classItem.id} - ${formatDate(classItem.date)} ${classItem.time}` : 'N/A'}</span>
+                            <span class="info-value">${classItem ? `Aula #${classItem.id} - ${formatDate(classItem.date)} ${classItem.time}` : 'N/A'}${isClassCancelled ? ' <span style=\"color:#dc3545;font-weight:bold;\">(Aula cancelada)</span>' : ''}${isBookingCancelled ? ' <span style=\"color:#dc3545;font-weight:bold;\">(Reserva cancelada)</span>' : ''}</span>
                         </div>
                         <div class="info-item">
                             <span class="info-label">Data da Reserva:</span>

@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, ManyToOne, CreateDateColumn, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, ManyToOne, CreateDateColumn, OneToMany, Column } from 'typeorm';
 import { User } from '../../user/entities/user.entity';
 import { Class } from '../../class/entities/class.entity';
 
@@ -12,6 +12,9 @@ user: User;
 
   @ManyToOne(() => Class)
   class: Class;
+
+  @Column({ default: 'active' })
+  status: string;
 
   @OneToMany(() => Booking, booking => booking.user)
   bookings: Booking[];

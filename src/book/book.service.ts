@@ -43,15 +43,18 @@ export class BookingsService {
 
 
   async getUserFrequency(userId: number, start: string, end: string): Promise<Booking[]> {
-    return this.bookingRepo.find({
+    const bookings = await this.bookingRepo.find({
       where: {
         user: { id: userId },
+        status: 'active',
         class: {
           date: Between(new Date(start), new Date(end))
         }
       },
       relations: ['class']
     });
+    // Filtrar para não contar aulas canceladas
+    return bookings.filter(b => b.class?.status !== 'cancelled');
   }
 
   async findByUserId(userId: number) {

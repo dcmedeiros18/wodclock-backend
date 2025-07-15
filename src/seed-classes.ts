@@ -26,9 +26,9 @@ async function seedClasses() {
     { time: '09:00', maxspots: 40 }
   ];
 
-  // Gerar datas de 01 a 15 de julho de 2025
-  const startDate = new Date('2025-07-01');
-  const endDate = new Date('2025-07-15');
+  // Gerar datas de 16 de julho a 16 de agosto de 2025
+  const startDate = new Date('2025-07-16');
+  const endDate = new Date('2025-08-16');
   
   let currentDate = new Date(startDate);
   let classId = 1;
