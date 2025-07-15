@@ -15,6 +15,9 @@ export class Class {
   @Column()
   maxspots: number; 
 
+  @Column({ default: 'active' })
+  status: string;
+
   @OneToMany(() => Booking, booking => booking.class)
   bookings: Booking[];
 

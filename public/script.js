@@ -138,46 +138,46 @@ async function loadClasses() {
 function renderClasses() {
     const container = document.getElementById('classesContainer');
     
-    if (classes.length === 0) {
-        showEmptyState(container, 'Aulas', 'fas fa-calendar-alt');
+    if (!classes || classes.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-calendar-alt"></i>
+                <h3>Nenhuma aula encontrada</h3>
+                <p>Não há aulas disponíveis.</p>
+            </div>
+        `;
         return;
     }
 
-    container.innerHTML = classes.map(classItem => `
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">Aula #${classItem.id}</h3>
-                <div class="card-actions">
-                    <button class="btn btn-secondary" onclick="editClass(${classItem.id})">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="btn btn-danger" onclick="deleteClass(${classItem.id})">
-                        <i class="fas fa-trash"></i>
-                    </button>
+    container.innerHTML = classes.map(classItem => {
+        const isCancelled = classItem.status === 'cancelled';
+        return `
+            <div class="card">
+                <div class="card-header">
+                    <b>Aula #${classItem.id}</b> - ${formatDate(classItem.date)} ${classItem.time}
+                    ${isCancelled ? ' <span style="color:#dc3545;font-weight:bold;">(Aula cancelada)</span>' : ''}
                 </div>
-            </div>
-            <div class="card-content">
-                <div class="card-info">
-                    <div class="info-item">
-                        <span class="info-label">Data:</span>
-                        <span class="info-value">${formatDate(classItem.date)}</span>
+                <div class="card-content">
+                    <div class="card-info">
+                        <div class="info-item">
+                            <span class="info-label">Vagas:</span>
+                            <span class="info-value">${classItem.maxspots}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">WOD ID:</span>
+                            <span class="info-value">${classItem.wod_id}</span>
+                        </div>
                     </div>
-                    <div class="info-item">
-                        <span class="info-label">Horário:</span>
-                        <span class="info-value">${classItem.time}</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Vagas:</span>
-                        <span class="info-value">${classItem.maxspots}</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">WOD ID:</span>
-                        <span class="info-value">${classItem.wod_id}</span>
+                    <div class="card-actions">
+                        <button class="btn btn-primary" onclick="openBookingModalForClass(${classItem.id})" ${isCancelled ? 'disabled' : ''}>
+                            Agendar
+                        </button>
+                        ${isCancelled ? '<div style="color:#dc3545;margin-top:8px;">Aula cancelada</div>' : ''}
                     </div>
                 </div>
             </div>
-        </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
 async function createClass(classData) {
@@ -348,11 +348,15 @@ function renderAdminClassList(classList, dateFilter) {
             <div style="margin-bottom: 16px;">
                 <button type="button" class="btn btn-danger" onclick="openAdminCancelModal()">Cancel Selected</button>
             </div>
-            ${classList.map(classItem => `
+            ${classList.map(classItem => {
+                const isCancelled = classItem.status === 'cancelled';
+                return `
                 <div class="card">
                     <div class="card-header">
-                        <input type="checkbox" class="admin-cancel-checkbox" value="${classItem.id}" />
-                        <span style="margin-left:8px;"><b>Aula #${classItem.id}</b> - ${formatDate(classItem.date)} ${classItem.time}</span>
+                        <input type="checkbox" class="admin-cancel-checkbox" value="${classItem.id}" ${isCancelled ? 'disabled' : ''} />
+                        <span style="margin-left:8px;"><b>Aula #${classItem.id}</b> - ${formatDate(classItem.date)} ${classItem.time}
+                        ${isCancelled ? ' <span style=\"color:#dc3545;font-weight:bold;\">(Aula cancelada)</span>' : ''}
+                        </span>
                     </div>
                     <div class="card-content">
                         <div class="card-info">
@@ -367,7 +371,8 @@ function renderAdminClassList(classList, dateFilter) {
                         </div>
                     </div>
                 </div>
-            `).join('')}
+                `;
+            }).join('')}
         </form>
         <div id="adminCancelModal" class="modal" style="display:none;">
             <div class="modal-content">
@@ -412,11 +417,17 @@ window.confirmAdminCancel = async function() {
         return;
     }
     try {
-        await Promise.all(selectedIds.map(id => apiRequest(`/api/classes/${id}`, { method: 'DELETE' })));
-        // Remover da tela
+        await Promise.all(selectedIds.map(id => apiRequest(`/api/classes/${id}/cancel`, { method: 'PATCH' })));
+        // Atualizar visualmente para status cancelado
         selectedIds.forEach(id => {
             const card = document.querySelector(`.admin-cancel-checkbox[value="${id}"]`).closest('.card');
-            card.remove();
+            if (card) {
+                card.querySelector('.admin-cancel-checkbox').disabled = true;
+                const span = card.querySelector('.card-header span');
+                if (span && !span.innerHTML.includes('Cancelada')) {
+                    span.innerHTML += ' <span style="color:#dc3545;font-weight:bold;">(Aula cancelada)</span>';
+                }
+            }
         });
         showToast('Aulas canceladas com sucesso!', 'success');
         closeAdminCancelModal();
@@ -866,3 +877,134 @@ window.deleteBooking = deleteBooking;
 window.editClass = (id) => openClassModal(id);
 window.editWod = (id) => openWodModal(id); 
 window.handleCancelBooking = handleCancelBooking; 
+
+// --- ADMIN/COACH: Cancelamento em lote na aba de reservas ---
+function renderAdminBookClassesForDate(dateFilter) {
+    apiRequest(`/api/classes/by-date?date=${dateFilter}`)
+        .then(classesOfDay => {
+            const container = document.getElementById('bookingsContainer');
+            if (!classesOfDay || classesOfDay.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-calendar-times"></i>
+                        <h3>Nenhuma aula encontrada para a data selecionada.</h3>
+                    </div>
+                `;
+                return;
+            }
+            const now = new Date();
+            container.innerHTML = `
+                <form id="adminBookCancelForm">
+                    <div style="margin-bottom: 16px;">
+                        <button type="button" class="btn btn-danger" onclick="openAdminBookCancelModal()">Cancel Selected</button>
+                    </div>
+                    ${classesOfDay.map(classItem => {
+                        let dateStr = classItem.date;
+                        let timeStr = classItem.time;
+                        if (timeStr.length === 5) timeStr += ':00';
+                        const classDateTime = new Date(`${dateStr}T${timeStr}`);
+                        const diffMinutes = (classDateTime - now) / (1000 * 60);
+                        const canCancel = diffMinutes > 120;
+                        const isPast = classDateTime < now;
+                        const isCancelled = classItem.status === 'cancelled';
+                        return `
+                        <div class="card${isCancelled ? ' cancelled-booking' : ''}">
+                            <div class="card-header">
+                                <input type="checkbox" class="admin-book-cancel-checkbox" value="${classItem.id}" ${(!canCancel || isPast || isCancelled) ? 'disabled' : ''} />
+                                <span style="margin-left:8px;"><b>Aula #${classItem.id}</b> - ${formatDate(classItem.date)} ${classItem.time}
+                                ${isPast ? ' <span style=\"color:#dc3545;font-weight:bold;\">(Passada)</span>' : ''}
+                                ${!isPast && !canCancel ? ' <span style=\"color:#dc3545;font-weight:bold;\">(Menos de 2h)</span>' : ''}
+                                ${isCancelled ? ' <span style=\"color:#dc3545;font-weight:bold;\">(Cancelada)</span>' : ''}
+                                </span>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-info">
+                                    <div class="info-item">
+                                        <span class="info-label">Vagas:</span>
+                                        <span class="info-value">${classItem.maxspots}</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">WOD ID:</span>
+                                        <span class="info-value">${classItem.wod_id}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        `;
+                    }).join('')}
+                </form>
+                <div id="adminBookCancelModal" class="modal" style="display:none;">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3>Do you really want to cancel the following classes?</h3>
+                        </div>
+                        <div class="modal-body" id="adminBookCancelModalBody"></div>
+                        <div class="form-actions">
+                            <button class="btn btn-secondary" onclick="closeAdminBookCancelModal()">No</button>
+                            <button class="btn btn-danger" onclick="confirmAdminBookCancel()">Yes</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        })
+        .catch(error => {
+            showToast('Erro ao buscar aulas do dia.', 'error');
+        });
+}
+
+window.openAdminBookCancelModal = function() {
+    const checkboxes = document.querySelectorAll('.admin-book-cancel-checkbox:checked');
+    if (checkboxes.length === 0) {
+        showToast('Selecione pelo menos uma aula para cancelar.', 'error');
+        return;
+    }
+    const classList = Array.from(checkboxes).map(cb => {
+        const card = cb.closest('.card');
+        const header = card.querySelector('.card-header span').textContent;
+        return header;
+    });
+    document.getElementById('adminBookCancelModalBody').innerHTML = classList.map(txt => `<div>${txt}</div>`).join('');
+    document.getElementById('adminBookCancelModal').style.display = 'block';
+}
+window.closeAdminBookCancelModal = function() {
+    document.getElementById('adminBookCancelModal').style.display = 'none';
+}
+window.confirmAdminBookCancel = async function() {
+    const checkboxes = document.querySelectorAll('.admin-book-cancel-checkbox:checked');
+    const selectedIds = Array.from(checkboxes).map(cb => cb.value);
+    if (selectedIds.length === 0) {
+        showToast('Nenhuma aula selecionada.', 'error');
+        closeAdminBookCancelModal();
+        return;
+    }
+    try {
+        await Promise.all(selectedIds.map(id => apiRequest(`/api/classes/${id}`, { method: 'DELETE' })));
+        // Atualizar visualmente para status cancelado
+        selectedIds.forEach(id => {
+            const card = document.querySelector(`.admin-book-cancel-checkbox[value="${id}"]`).closest('.card');
+            if (card) {
+                card.classList.add('cancelled-booking');
+                card.querySelector('.admin-book-cancel-checkbox').disabled = true;
+                const span = card.querySelector('.card-header span');
+                if (span && !span.innerHTML.includes('Cancelada')) {
+                    span.innerHTML += ' <span style="color:#dc3545;font-weight:bold;">(Cancelada)</span>';
+                }
+            }
+        });
+        showToast('Aulas canceladas com sucesso!', 'success');
+        closeAdminBookCancelModal();
+    } catch (error) {
+        showToast('Erro ao cancelar aulas.', 'error');
+    }
+}
+
+// Modificar filterBookings para ADMIN/COACH
+const originalFilterBookings = filterBookings;
+window.filterBookings = function() {
+    const dateFilter = document.getElementById('bookingDateFilter').value;
+    if (isAdminOrCoach() && dateFilter) {
+        renderAdminBookClassesForDate(dateFilter);
+    } else {
+        originalFilterBookings();
+    }
+} 

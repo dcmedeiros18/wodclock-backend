@@ -157,6 +157,14 @@ export class ClassController {
     return this.classService.update(+id, updateClassDto);
   }
 
+  @Patch(':id/cancel')
+  @UseGuards(AuthGuard('jwt'))
+  async cancelClass(@Param('id') id: string, @Request() req) {
+    // Aqui pode-se adicionar lógica para permitir apenas admin/coach
+    const updated = await this.classService.update(+id, { status: 'cancelled' });
+    return { message: 'Aula cancelada com sucesso', updated };
+  }
+
   @Delete(':id')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles('admin', 'coach')

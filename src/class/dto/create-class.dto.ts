@@ -12,4 +12,7 @@ export class CreateClassDto {
 
   @IsNumber()
   wod_id: number;
+
+  @IsString()
+  status?: string;
 }
