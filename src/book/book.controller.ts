@@ -33,9 +33,12 @@ export class BookController {
 
   @Get('user')
   @UseGuards(AuthGuard('jwt'))
-  async getUserBookings(@Req() req) {
-    console.log('REQ.USER BACKEND:', req.user);
-    return this.bookingsService.findByUserId(req.user.id);
+  async getUserBookings(
+    @Req() req,
+    @Query('start') start?: string,
+    @Query('end') end?: string
+  ) {
+    return this.bookingsService.findByUserId(req.user.id, start, end);
   }
 
   @Get()

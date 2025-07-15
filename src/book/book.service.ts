@@ -57,26 +57,16 @@ export class BookingsService {
     return bookings.filter(b => b.class?.status !== 'cancelled');
   }
 
-  async findByUserId(userId: number) {
-    console.log('ID RECEBIDO:', userId);
+  async findByUserId(userId: number, start?: string, end?: string) {
+    const where: any = { user: { id: Number(userId) } };
+    if (start && end) {
+      where.class = { date: Between(new Date(start), new Date(end)) };
+    }
     const bookings = await this.bookingRepo.find({
-      where: { user: { id: Number(userId) } }, // forçando número
+      where,
       relations: ['class'],
     });
-    console.log('BOOKINGS ENCONTRADOS:', bookings);
     return bookings;
-
-    try {
-      const bookings = await this.bookingRepo.find({
-        where: { user: { id: Number(userId) } },
-        relations: ['class'],
-      });
-      return bookings;
-    } catch (err) {
-      console.error('ERRO AO BUSCAR BOOKINGS:', err);
-      throw new BadRequestException('Erro ao buscar reservas do usuário');
-    }
-    
   }
 
   

@@ -1010,3 +1010,45 @@ window.filterBookings = function() {
         originalFilterBookings();
     }
 } 
+
+// Substituir a função fetchFrequency para garantir que a mensagem de total de presenças só aparece abaixo dos cards
+async function fetchFrequency() {
+    const userId = document.getElementById('frequencyUserFilter').value;
+    const start = document.getElementById('frequencyStartDate').value;
+    const end = document.getElementById('frequencyEndDate').value;
+    const container = document.getElementById('frequencyContainer');
+
+    if (!userId || !start || !end) {
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-user-clock"></i><h3>Preencha todos os campos para buscar frequência.</h3></div>';
+        return;
+
+    }
+
+    try {
+        container.innerHTML = '<div class="loading">Buscando frequência...</div>';
+        const freq = await apiRequest(`/api/bookings/frequency?userId=${userId}&start=${start}&end=${end}`);
+        if (!freq || freq.length === 0) {
+            container.innerHTML = '<div class="empty-state"><i class="fas fa-user-clock"></i><h3>Nenhuma presença encontrada no período.</h3></div>';
+            return;
+        }
+        let html = freq.map(b => {
+            return `<div class="card">
+                <div class="card-header">
+                    <b>Reserva #${b.id}</b> - ${b.class?.date || ''} ${b.class?.time || ''}
+                </div>
+                <div class="card-content">
+                    <div class="card-info">
+                        <div class="info-item"><span class="info-label">Aula:</span> <span class="info-value">${b.class ? `Aula #${b.class.id}` : 'N/A'}</span></div>
+                        <div class="info-item"><span class="info-label">Data:</span> <span class="info-value">${b.class?.date || ''}</span></div>
+                        <div class="info-item"><span class="info-label">Horário:</span> <span class="info-value">${b.class?.time || ''}</span></div>
+                    </div>
+                </div>
+            </div>`;
+        }).join('');
+        // Exibir total apenas abaixo dos cards
+        html += `<div class='summary' style='margin-top:16px;'><b>Total de presenças: ${freq.length}</b></div>`;
+        container.innerHTML = html;
+    } catch (error) {
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-user-clock"></i><h3>Erro ao buscar frequência.</h3></div>';
+    }
+} } 
