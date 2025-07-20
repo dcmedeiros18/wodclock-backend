@@ -3,7 +3,7 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../user/entities/user.entity';
-import { JwtModule } from '@nestjs/jwt'; 
+import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './jwt.strategy';
 import { Booking } from '../book/entities/book.entity';
 import { BookController } from '../book/book.controller';
@@ -11,14 +11,33 @@ import { BookingsService } from '../book/book.service';
 
 @Module({
   imports: [
+    // Registers the User and Booking entities for dependency injection
     TypeOrmModule.forFeature([User, Booking]),
+
+    // JWT configuration 
     JwtModule.register({
-      secret: 'jwt_secret_key', // depois coloque no .env
-      signOptions: { expiresIn: '1h' },
+      secret: 'jwt_secret_key', 
+      signOptions: { expiresIn: '1h' }, // Token expiration time
     }),
   ],
-  providers: [AuthService, JwtStrategy, BookingsService],
-  controllers: [AuthController, BookController],
-  exports: [AuthService, BookingsService]
+
+  // Service and strategy providers
+  providers: [
+    AuthService,
+    JwtStrategy,
+    BookingsService, 
+  ],
+
+  // Controllers for handling routes
+  controllers: [
+    AuthController,
+    BookController, 
+  ],
+
+  // Exporting services for usage in other modules
+  exports: [
+    AuthService,
+    BookingsService
+  ],
 })
 export class AuthModule {}
