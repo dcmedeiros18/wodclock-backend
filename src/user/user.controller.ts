@@ -10,6 +10,7 @@ export class UserController {
 
   @Post()
   async create(@Body() createUserDto: CreateUserDto): Promise<User> {
+    console.log('Recebido no backend:', createUserDto);
     return this.userService.create(createUserDto);
   }
 

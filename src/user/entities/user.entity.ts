@@ -5,7 +5,7 @@ import { Booking } from '../../book/entities/book.entity';
 export class User {
   @OneToMany(() => Booking, (booking) => booking.user)
   bookings: Booking[];
-  
+
 
   @PrimaryGeneratedColumn()
   id: number;
@@ -46,4 +46,11 @@ export class User {
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
+
+  @Column({ nullable: true })
+  secretQuestion: string;
+
+  @Column({ nullable: true })
+  secretAnswer: string; // será armazenada criptografada
+
 }

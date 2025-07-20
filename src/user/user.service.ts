@@ -14,19 +14,29 @@ export class UserService {
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
-    const user =this.userRepository.create(createUserDto);
+    const user = this.userRepository.create(createUserDto);
 
-     // Hash da senha antes de salvar
-  const salt = await bcrypt.genSalt();
-  user.password = await bcrypt.hash(user.password, salt);
+    // Hash da senha antes de salvar
+    const salt = await bcrypt.genSalt();
+    user.password = await bcrypt.hash(user.password, salt);
+    
+    // Hash da resposta secreta antes de salvar
+    if (createUserDto.secretAnswer) {
+      user.secretAnswer = await bcrypt.hash(createUserDto.secretAnswer, salt);
+    }
+    
+    // Salvar a pergunta secreta
+    if (createUserDto.secretQuestion) {
+      user.secretQuestion = createUserDto.secretQuestion;
+    }
   
     try {
       return await this.userRepository.save(user);
-    }catch (error) {
-      if (error.code === 'SQLITE_CONSTRAINT'){
+    } catch (error) {
+      if (error.code === 'SQLITE_CONSTRAINT') {
         throw new ConflictException('Email already exists');
       }
-      throw new InternalServerErrorException ('Failed to create user');
+      throw new InternalServerErrorException('Failed to create user');
     }
   }
 

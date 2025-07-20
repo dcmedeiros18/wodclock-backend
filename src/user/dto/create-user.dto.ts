@@ -45,4 +45,10 @@ export class CreateUserDto {
 
   @IsNotEmpty()
   profile: string;
+
+  @IsNotEmpty()
+  secretQuestion: string;
+
+  @IsNotEmpty()
+  secretAnswer: string;
 }

@@ -7,6 +7,8 @@ import { WodModule } from './wod/wod.module';
 import { ClassModule } from './class/class.module';
 import { AuthModule } from './auth/auth.module';
 import { BookModule } from './book/book.module';
+import { ForgotPasswordModule } from './forgot-password/forgot-password.module';
+
 
 @Module({
   imports: [
@@ -21,6 +23,7 @@ import { BookModule } from './book/book.module';
     WodModule,
     ClassModule,
     BookModule,
+    ForgotPasswordModule,
   ],
   controllers: [AppController],
   providers: [AppService],
