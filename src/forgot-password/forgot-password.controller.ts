@@ -17,10 +17,11 @@ import { RecoverPasswordDto } from './recover-password.dto';
 import { ValidateEmailDto } from './dto/validate-email.dto';
 import { ValidateAnswerDto } from './dto/validate-answer.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
+import { BadRequestException } from '@nestjs/common';
 
 @Controller('forgot-password')
 export class ForgotPasswordController {
-  constructor(private readonly forgotPasswordService: ForgotPasswordService) {}
+  constructor(private readonly forgotPasswordService: ForgotPasswordService) { }
 
   /**
    * Creates a forgot-password record.
@@ -45,18 +46,22 @@ export class ForgotPasswordController {
    */
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.forgotPasswordService.findOne(+id);
+    const numericId = parseInt(id, 10);
+    if (isNaN(numericId)) {
+      throw new BadRequestException('Invalid ID format.');
+    }
+    return this.forgotPasswordService.findOne(numericId);
   }
-
   /**
    * Updates a forgot-password record by ID.
    */
   @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateForgotPasswordDto: UpdateForgotPasswordDto,
-  ) {
-    return this.forgotPasswordService.update(+id, updateForgotPasswordDto);
+  update(@Param('id') id: string, @Body() dto: UpdateForgotPasswordDto) {
+    const numericId = parseInt(id, 10);
+    if (isNaN(numericId)) {
+      throw new BadRequestException('Invalid ID format.');
+    }
+    return this.forgotPasswordService.update(numericId, dto);
   }
 
   /**
@@ -64,7 +69,11 @@ export class ForgotPasswordController {
    */
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.forgotPasswordService.remove(+id);
+    const numericId = parseInt(id, 10);
+    if (isNaN(numericId)) {
+      throw new BadRequestException('Invalid ID format.');
+    }
+    return this.forgotPasswordService.remove(numericId);
   }
 
   /**

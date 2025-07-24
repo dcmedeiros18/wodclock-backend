@@ -7,7 +7,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './jwt.strategy';
 import { Booking } from '../book/entities/book.entity';
 import { BookController } from '../book/book.controller';
-import { BookingsService } from '../book/book.service';
+import { BookService } from '../book/book.service';
 
 @Module({
   imports: [
@@ -25,7 +25,7 @@ import { BookingsService } from '../book/book.service';
   providers: [
     AuthService,
     JwtStrategy,
-    BookingsService, 
+    BookService, 
   ],
 
   // Controllers for handling routes
@@ -37,7 +37,7 @@ import { BookingsService } from '../book/book.service';
   // Exporting services for usage in other modules
   exports: [
     AuthService,
-    BookingsService
+    BookService
   ],
 })
 export class AuthModule {}
