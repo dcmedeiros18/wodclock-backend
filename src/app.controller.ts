@@ -9,4 +9,10 @@ export class AppController {
   getHello(): string {
     return this.appService.getHello();
   }
+
+  @Get()
+getHome(): string {
+  return 'WodClock backend is live ';
+}
+
 }
