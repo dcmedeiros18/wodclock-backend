@@ -28,7 +28,7 @@ const getDatabaseConfig = () => {
       database: process.env.DB_NAME || 'wodclock',
       ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize: false, // Never auto-sync schemas in production for safety
+      synchronize: true, // Never auto-sync schemas in production for safety
       logging: false, // Disable logging in production for performance
     };
   } else {
