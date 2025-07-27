@@ -13,15 +13,40 @@ import { AuthModule } from './auth/auth.module';
 import { BookModule } from './book/book.module';
 import { ForgotPasswordModule } from './forgot-password/forgot-password.module';
 
+// ===== Database Configuration Function =====
+const getDatabaseConfig = () => {
+  const isProduction = process.env.NODE_ENV === 'production';
+  
+  if (isProduction) {
+    // PostgreSQL configuration for production environment
+    return {
+      type: 'postgres' as const,
+      host: process.env.DB_HOST || 'localhost',
+      port: parseInt(process.env.DB_PORT || '5432'),
+      username: process.env.DB_USERNAME || 'postgres',
+      password: process.env.DB_PASSWORD || '',
+      database: process.env.DB_NAME || 'wodclock',
+      ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
+      entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      synchronize: false, // Never auto-sync schemas in production for safety
+      logging: false, // Disable logging in production for performance
+    };
+  } else {
+    // SQLite configuration for local development environment
+    return {
+      type: 'sqlite' as const,
+      database: 'database.sqlite',
+      entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      synchronize: true, // Auto-create tables in development
+      logging: true, // Enable logging in development for debugging
+    };
+  }
+};
+
 @Module({
   imports: [
-    // ===== Database configuration using SQLite =====
-    TypeOrmModule.forRoot({
-      type: 'sqlite', // Using SQLite as the database
-      database: 'database.sqlite', // SQLite file name
-      entities: [__dirname + '/**/*.entity{.ts,.js}'], // Auto-load all entities
-      synchronize: true, // Auto-create tables (use only in development)
-    }),
+    // ===== Database configuration - SQLite for local, PostgreSQL for production =====
+    TypeOrmModule.forRoot(getDatabaseConfig()),
 
     // ===== Application feature modules =====
     AuthModule,

@@ -9,8 +9,7 @@
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "node dist/main",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/main",
-    "build": "./node_modules/.bin/nest build",
+    "start:prod": "node dist/main",    
     "start:dev": "nest start --watch",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
@@ -19,8 +18,7 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "seed": "npx ts-node src/seed.ts",
-    "build": "tsc -p tsconfig.build.json",
-    "start": "node dist/main"
+    "build": "tsc -p tsconfig.build.json"   
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
