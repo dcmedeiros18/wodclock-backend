@@ -7,7 +7,7 @@ import { ClassController } from './class.controller';
 import { Class } from './entities/class.entity';
 import { JwtStrategy } from '../auth/jwt.strategy';
 import { RolesGuard } from '../auth/roles.guard';
-import { AuthModule } from 'src/auth/auth.module';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
