@@ -12,9 +12,21 @@ export class ClassService {
     private readonly classRepository: Repository<Class>,
   ) {}
 
-  create(createClassDto: CreateClassDto) {
+  async create(createClassDto: CreateClassDto) {
+    const { date, time } = createClassDto;
+  
+    // Verifica se já existe uma aula com a mesma data e horário
+    const existingClass = await this.classRepository.findOne({
+      where: { date: new Date(date), time }
+    });
+  
+    if (existingClass) {
+      throw new Error('A class already exists at this date and time.');
+    }
+  
     return this.classRepository.save(createClassDto);
   }
+  
 
   findAll() {
     return this.classRepository.find();

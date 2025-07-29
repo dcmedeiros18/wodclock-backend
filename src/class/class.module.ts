@@ -7,14 +7,15 @@ import { ClassController } from './class.controller';
 import { Class } from './entities/class.entity';
 import { JwtStrategy } from '../auth/jwt.strategy';
 import { RolesGuard } from '../auth/roles.guard';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Class]),
+    TypeOrmModule.forFeature([Class]), AuthModule,
     PassportModule,
     JwtModule.register({
       secret: 'jwt_secret_key',
-      signOptions: { expiresIn: '24h' },
+      signOptions: { expiresIn: '1h' },
     }),
   ],
   controllers: [ClassController],

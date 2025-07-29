@@ -37,7 +37,8 @@ import { BookService } from '../book/book.service';
   // Exporting services for usage in other modules
   exports: [
     AuthService,
-    BookService
+    BookService,
+    JwtModule,
   ],
 })
 export class AuthModule {}
