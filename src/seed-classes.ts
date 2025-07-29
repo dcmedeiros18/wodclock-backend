@@ -12,18 +12,18 @@ async function seedClasses() {
 
   // Horários de segunda a sexta
   const weekdays = [
-    { time: '06:00', maxspots: 20 },
-    { time: '07:00', maxspots: 20 },
-    { time: '08:00', maxspots: 20 },
-    { time: '17:00', maxspots: 20 },
-    { time: '18:00', maxspots: 20 },
-    { time: '19:00', maxspots: 20 },
-    { time: '20:00', maxspots: 20 }
+    { time: '06:00', maxspots: 15 },
+    { time: '07:00', maxspots: 15 },
+    { time: '08:00', maxspots: 15 },
+    { time: '17:00', maxspots: 15 },
+    { time: '18:00', maxspots: 15 },
+    { time: '19:00', maxspots: 15 },
+    { time: '20:00', maxspots: 15 }
   ];
 
   // Horário de sábado
   const saturday = [
-    { time: '09:00', maxspots: 40 }
+    { time: '09:00', maxspots: 26 }
   ];
 
   // Gerar datas de 16 de julho a 16 de agosto de 2025
