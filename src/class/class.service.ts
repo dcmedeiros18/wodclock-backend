@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Between } from 'typeorm';
 import { CreateClassDto } from './dto/create-class.dto';
@@ -15,17 +15,15 @@ export class ClassService {
   async create(createClassDto: CreateClassDto) {
     const { date, time } = createClassDto;
   
-    // Verifica se já existe uma aula com a mesma data e horário
-    const existingClass = await this.classRepository.findOne({
-      where: { date: new Date(date), time }
-    });
+    const exists = await this.classRepository.findOne({ where: { date: new Date(date), time } });
   
-    if (existingClass) {
-      throw new Error('A class already exists at this date and time.');
+    if (exists) {
+      throw new BadRequestException('Class already exists at this date and time.');
     }
   
     return this.classRepository.save(createClassDto);
   }
+  
   
 
   findAll() {
