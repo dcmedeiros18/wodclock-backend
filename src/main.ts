@@ -11,7 +11,7 @@ async function bootstrap() {
 
   // Enable CORS
   app.enableCors({
-    origin: ['http://localhost:8100','http://localhost:8101','http://localhost:8102', 'https://wod-clock.netlify.app',],
+    origin: ['http://localhost:8100','http://localhost:8101','http://localhost:8102', 'https://wod-clock.netlify.app/login',],
     credentials: true, 
   });
  
