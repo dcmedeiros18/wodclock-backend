@@ -41,15 +41,12 @@ export class ClassService {
         throw new Error('Data inválida');
       }
   
-      const startDate = new Date(targetDate);
-      const endDate = new Date(targetDate);
-      endDate.setDate(endDate.getDate() + 1);
-  
+            // Usar data exata para evitar duplicação
       const classes = await this.classRepository.find({
         where: {
-          date: Between(startDate, endDate)
+          date: targetDate // Usar objeto Date direto
         },
-        relations: ['bookings'],
+        relations: ['bookings', 'bookings.user'],
         order: {
           time: 'ASC'
         }

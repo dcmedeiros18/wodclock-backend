@@ -68,6 +68,40 @@ export class ClassController {
     }
   }
 
+  @Get('raw/:date(\\d{4}-\\d{2}-\\d{2})')
+  async findByDateRaw(@Param('date') date: string) {
+    try {
+      // Consulta direta sem processamento para debug
+      const rawClasses = await this.classService.findAll();
+      const targetDate = new Date(date + 'T00:00:00').toISOString().split('T')[0];
+      
+      const classesForDate = rawClasses.filter(cls => {
+        const classDate = new Date(cls.date).toISOString().split('T')[0];
+        return classDate === targetDate;
+      });
+
+      return {
+        message: 'Debug - dados brutos do banco',
+        date,
+        targetDate,
+        totalClassesInDB: rawClasses.length,
+        classesForThisDate: classesForDate.length,
+        classes: classesForDate.map(cls => ({
+          id: cls.id,
+          date: cls.date,
+          time: cls.time,
+          maxspots: cls.maxspots,
+          status: cls.status,
+          wod_id: cls.wod_id
+        })),
+        timestamp: new Date()
+      };
+    } catch (error) {
+      console.error('Error in findByDateRaw:', error);
+      throw new HttpException('Erro interno do servidor', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
   @Get('by-date')
   @UseGuards(AuthGuard('jwt'))
   async findByDate(@Query('date') date: string, @Request() req) {
