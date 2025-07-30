@@ -15,7 +15,7 @@ export class ClassService {
   async create(createClassDto: CreateClassDto) {
     const { date, time } = createClassDto;
 
-    // ✅ Usa string para verificar se aula já existe na mesma data e hora
+    // Usa string para verificar se aula já existe na mesma data e hora
     const exists = await this.classRepository.findOne({ where: { date, time } });
 
     if (exists) {
@@ -31,12 +31,12 @@ export class ClassService {
 
   async findByDate(date: string, userId?: number) {
     try {
-      // ✅ Verifica se a string está no formato correto
+      // Verifica se a string está no formato correto
       if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
         throw new Error('Invalid date format. Use YYYY-MM-DD');
       }
 
-      // ✅ Busca por data exata (sem BETWEEN, sem Date)
+      //  Busca por data exata (sem BETWEEN, sem Date)
       const classes = await this.classRepository.find({
         where: {
           date: date // mantém como string, compatível com a entidade
@@ -47,7 +47,7 @@ export class ClassService {
         }
       });
 
-      // ✅ Processa o retorno incluindo status, vagas restantes e se o usuário já reservou
+      //  Processa o retorno incluindo status, vagas restantes e se o usuário já reservou
       return classes.map(cls => ({
         ...cls,
         spotsLeft: cls.maxspots - (cls.bookings?.length || 0),

@@ -51,9 +51,14 @@ export class ClassController {
     }
   }
 
-  @Get('public/:date(\\d{4}-\\d{2}-\\d{2})')
+  @Get('public/:date')
   async findByDatePublic(@Param('date') date: string) {
     try {
+      // Validação segura do formato da data (YYYY-MM-DD)
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+        throw new HttpException('Invalid date format. Use YYYY-MM-DD', HttpStatus.BAD_REQUEST);
+      }
+  
       const classes = await this.classService.findByDate(date);
       return {
         message: 'Endpoint público (sem autenticação)',
