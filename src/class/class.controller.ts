@@ -73,18 +73,22 @@ export class ClassController {
     }
   }
 
-  @Get('raw/:date(\\d{4}-\\d{2}-\\d{2})')
+  @Get('raw/:date')
   async findByDateRaw(@Param('date') date: string) {
     try {
+      // Validar formato da data (YYYY-MM-DD)
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+        throw new HttpException('Invalid date format. Use YYYY-MM-DD', HttpStatus.BAD_REQUEST);
+      }
+  
       // Consulta direta sem processamento para debug
       const rawClasses = await this.classService.findAll();
-      const targetDate = new Date(date + 'T00:00:00').toISOString().split('T')[0];
-      
+      const targetDate = date;
+  
       const classesForDate = rawClasses.filter(cls => {
-        const classDate = new Date(cls.date).toISOString().split('T')[0];
-        return classDate === targetDate;
+        return cls.date === targetDate;
       });
-
+  
       return {
         message: 'Debug - dados brutos do banco',
         date,
