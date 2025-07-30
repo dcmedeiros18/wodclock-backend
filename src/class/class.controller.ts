@@ -25,6 +25,16 @@ export class ClassController {
     };
   }
 
+  @Get('auth-debug')
+  authDebug(@Request() req) {
+    return { 
+      message: 'Debug de autenticação',
+      headers: req.headers,
+      authorization: req.headers.authorization,
+      timestamp: new Date() 
+    };
+  }
+
   @Get('debug')
   async debug() {
     try {
@@ -38,6 +48,23 @@ export class ClassController {
     } catch (error) {
       console.error('Debug error:', error);
       throw new HttpException('Erro no debug', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @Get('public/:date(\\d{4}-\\d{2}-\\d{2})')
+  async findByDatePublic(@Param('date') date: string) {
+    try {
+      const classes = await this.classService.findByDate(date);
+      return {
+        message: 'Endpoint público (sem autenticação)',
+        date,
+        totalClasses: classes.length,
+        classes,
+        timestamp: new Date()
+      };
+    } catch (error) {
+      console.error('Error in findByDatePublic:', error);
+      throw new HttpException('Erro interno do servidor', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -60,12 +87,7 @@ export class ClassController {
         throw new HttpException('Usuário não autenticado', HttpStatus.UNAUTHORIZED);
       }
       
-      const classes = await this.classService.findByDate(date, req.user.id);
-      return classes.map(cls => ({
-        ...cls,
-        spotsLeft: cls.maxspots - (cls.bookings ? cls.bookings.length : 0),
-        alreadyBooked: cls.bookings ? cls.bookings.some(b => b.user && b.user.id === req.user.id) : false
-      }));
+      return await this.classService.findByDate(date, req.user.id);
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
@@ -98,11 +120,7 @@ export class ClassController {
         throw new HttpException('Usuário não autenticado', HttpStatus.UNAUTHORIZED);
       }
       
-      const classes = await this.classService.findByDate(date, req.user.id);
-      return classes.map(cls => ({
-        ...cls,
-        spotsLeft: cls.maxspots - (cls.bookings ? cls.bookings.length : 0)
-      }));
+      return await this.classService.findByDate(date, req.user.id);
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
@@ -127,6 +145,26 @@ export class ClassController {
       throw new HttpException('Usuário não autenticado', HttpStatus.UNAUTHORIZED);
     }
     return this.classService.findAll();
+  }
+
+  // Endpoint que aceita data diretamente no path (formato YYYY-MM-DD)
+  @Get(':date(\\d{4}-\\d{2}-\\d{2})')
+  @UseGuards(AuthGuard('jwt'))
+  async findByDateDirect(@Param('date') date: string, @Request() req) {
+    try {
+      // Validar se o usuário está autenticado
+      if (!req.user || !req.user.id) {
+        throw new HttpException('Usuário não autenticado', HttpStatus.UNAUTHORIZED);
+      }
+      
+      return await this.classService.findByDate(date, req.user.id);
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      console.error('Error in findByDateDirect:', error);
+      throw new HttpException('Erro interno do servidor', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   @Get(':id')
