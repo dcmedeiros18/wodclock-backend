@@ -62,7 +62,7 @@ export class BookService {
         user: { id: userId },
         status: 'active',
         class: {
-          date: Between(new Date(start), new Date(end))
+          date: Between(start, end)
         }
       },
       relations: ['class']

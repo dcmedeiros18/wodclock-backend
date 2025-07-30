@@ -14,10 +14,11 @@ async function seed() {
   const classRepository = AppDataSource.getRepository(Class);
 
   const classInstance = classRepository.create({
-    date: new Date('2025-07-10'),
-    time: '18:00',
+    date: '2025-07-10', // ✅ Corrigido: string no formato esperado
+    time: '18:00:00',    // ✅ Certifique-se de seguir o formato completo HH:MM:SS
     maxspots: 20,
-    wod_id: 1, // Assumindo que já existe um WOD com id 1
+    wod_id: 1,           // ✅ Assumindo que esse WOD já existe
+    status: 'active',    // ✅ Recomendado para consistência
   });
 
   await classRepository.save(classInstance);
@@ -25,4 +26,4 @@ async function seed() {
   await AppDataSource.destroy();
 }
 
-seed(); 
+seed();
