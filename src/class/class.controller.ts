@@ -191,15 +191,19 @@ export class ClassController {
   }
 
   // Endpoint que aceita data diretamente no path (formato YYYY-MM-DD)
-  @Get(':date(\\d{4}-\\d{2}-\\d{2})')
+  @Get(':date')
   @UseGuards(AuthGuard('jwt'))
   async findByDateDirect(@Param('date') date: string, @Request() req) {
     try {
-      // Validar se o usuário está autenticado
+      // Validar formato da data
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+        throw new HttpException('Data inválida. Use o formato YYYY-MM-DD', HttpStatus.BAD_REQUEST);
+      }
+  
       if (!req.user || !req.user.id) {
         throw new HttpException('Usuário não autenticado', HttpStatus.UNAUTHORIZED);
       }
-      
+  
       return await this.classService.findByDate(date, req.user.id);
     } catch (error) {
       if (error instanceof HttpException) {
