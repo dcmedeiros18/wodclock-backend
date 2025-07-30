@@ -1,6 +1,6 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Between } from 'typeorm';
+import { Repository } from 'typeorm';
 import { CreateClassDto } from './dto/create-class.dto';
 import { UpdateClassDto } from './dto/update-class.dto';
 import { Class } from './entities/class.entity';
@@ -14,17 +14,16 @@ export class ClassService {
 
   async create(createClassDto: CreateClassDto) {
     const { date, time } = createClassDto;
-  
-    const exists = await this.classRepository.findOne({ where: { date: new Date(date), time } });
-  
+
+    // ✅ Usa string para verificar se aula já existe na mesma data e hora
+    const exists = await this.classRepository.findOne({ where: { date, time } });
+
     if (exists) {
       throw new BadRequestException('Class already exists at this date and time.');
     }
-  
+
     return this.classRepository.save(createClassDto);
   }
-  
-  
 
   findAll() {
     return this.classRepository.find();
@@ -32,38 +31,35 @@ export class ClassService {
 
   async findByDate(date: string, userId?: number) {
     try {
+      // ✅ Verifica se a string está no formato correto
       if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-        throw new Error('Data inválida. Use o formato YYYY-MM-DD');
+        throw new Error('Invalid date format. Use YYYY-MM-DD');
       }
-  
-      const targetDate = new Date(date + 'T00:00:00');
-      if (isNaN(targetDate.getTime())) {
-        throw new Error('Data inválida');
-      }
-  
-            // Usar data exata para evitar duplicação
+
+      // ✅ Busca por data exata (sem BETWEEN, sem Date)
       const classes = await this.classRepository.find({
         where: {
-          date: targetDate // Usar objeto Date direto
+          date: date // mantém como string, compatível com a entidade
         },
         relations: ['bookings', 'bookings.user'],
         order: {
           time: 'ASC'
         }
       });
-  
+
+      // ✅ Processa o retorno incluindo status, vagas restantes e se o usuário já reservou
       return classes.map(cls => ({
         ...cls,
         spotsLeft: cls.maxspots - (cls.bookings?.length || 0),
         alreadyBooked: cls.bookings?.some(b => b.user?.id === userId) || false,
-        cancelled: cls.status === 'cancelled' // <- ESSENCIAL: define a flag "cancelled" para o front
+        cancelled: cls.status === 'cancelled'
       }));
     } catch (error) {
       console.error('Error in findByDate:', error);
       throw error;
     }
   }
-  
+
   findOne(id: number) {
     return this.classRepository.findOneBy({ id });
   }
