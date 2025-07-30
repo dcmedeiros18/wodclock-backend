@@ -7,7 +7,7 @@ export class Class {
   id: number;
 
   @Column({ type: 'date' })
-  date: Date;
+  date: string;
 
   @Column({ type: 'time' })
   time: string;
