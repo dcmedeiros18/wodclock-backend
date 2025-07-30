@@ -14,15 +14,15 @@ async function seed() {
   const classRepository = AppDataSource.getRepository(Class);
 
   const classInstance = classRepository.create({
-    date: '2025-07-10', // ✅ Corrigido: string no formato esperado
-    time: '18:00:00',    // ✅ Certifique-se de seguir o formato completo HH:MM:SS
+    date: '2025-07-10', // ✅ Fixed: string in expected format
+    time: '18:00:00',    // ✅ Make sure to follow complete HH:MM:SS format
     maxspots: 20,
-    wod_id: 1,           // ✅ Assumindo que esse WOD já existe
-    status: 'active',    // ✅ Recomendado para consistência
+    wod_id: 1,           // ✅ Assuming this WOD already exists
+    status: 'active',    // ✅ Recommended for consistency
   });
 
   await classRepository.save(classInstance);
-  console.log('Aula inicial inserida com sucesso!');
+  console.log('Initial class inserted successfully!');
   await AppDataSource.destroy();
 }
 

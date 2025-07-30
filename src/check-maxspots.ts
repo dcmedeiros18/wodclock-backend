@@ -8,7 +8,7 @@ async function checkMaxSpots() {
   });
 
   const result = await db.all('SELECT id, date, time, maxspots FROM class ORDER BY date, time LIMIT 20');
-  console.log('Exemplo de aulas:');
+  console.log('Example classes:');
   result.forEach(cls => {
     console.log(`${cls.id} | ${cls.date} - ${cls.time} - maxspots: ${cls.maxspots}`);
   });

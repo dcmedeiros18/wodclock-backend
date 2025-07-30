@@ -8,10 +8,10 @@ async function seed() {
     driver: sqlite3.Database
   });
 
-  // // Limpar tabela user
+  // // Clear user table
   // await db.run('DELETE FROM user');
 
-  // // Usuário Admin
+  // // Admin User
   // await db.run(`
   //   INSERT INTO user (first_name, surname, date_of_birth, emergency_contact_name, emergency_contact_phone, phone_number, email, confirm_email, password, confirm_password, profile, created_at)
   //   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -30,7 +30,7 @@ async function seed() {
   //   new Date().toISOString()
   // ]);
 
-  // Usuário Coach
+  // Coach User
   await db.run(`
     INSERT INTO user (first_name, surname, date_of_birth, emergency_contact_name, emergency_contact_phone, phone_number, email, confirm_email, password, confirm_password, profile, created_at,secretQuestion,secretAnswer)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -51,7 +51,7 @@ async function seed() {
     'Test'
   ]);
 
-//   // Usuário Membership
+  //   // Membership User
 //   await db.run(`
 //     INSERT INTO user (first_name, surname, date_of_birth, emergency_contact_name, emergency_contact_phone, phone_number, email, confirm_email, password, confirm_password, profile, created_at)
 //     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -70,7 +70,7 @@ async function seed() {
 //     new Date().toISOString()
 //   ]);
 
-  console.log('Usuários inseridos com sucesso!');
+  console.log('Users inserted successfully!');
   await db.close();
 }
 

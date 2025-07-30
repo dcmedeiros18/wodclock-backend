@@ -19,7 +19,7 @@ export class ClassController {
   @UseGuards(AuthGuard('jwt'))
   authTest(@Request() req) {
     return { 
-      message: 'Autenticação funcionando!', 
+      message: 'Authentication working!', 
       user: req.user,
       timestamp: new Date() 
     };
@@ -28,7 +28,7 @@ export class ClassController {
   @Get('auth-debug')
   authDebug(@Request() req) {
     return { 
-      message: 'Debug de autenticação',
+      message: 'Authentication debug',
       headers: req.headers,
       authorization: req.headers.authorization,
       timestamp: new Date() 
@@ -47,21 +47,21 @@ export class ClassController {
       };
     } catch (error) {
       console.error('Debug error:', error);
-      throw new HttpException('Erro no debug', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException('Debug error', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
   @Get('public/:date')
   async findByDatePublic(@Param('date') date: string) {
     try {
-      // Validação segura do formato da data (YYYY-MM-DD)
+      // Safe validation of date format (YYYY-MM-DD)
       if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
         throw new HttpException('Invalid date format. Use YYYY-MM-DD', HttpStatus.BAD_REQUEST);
       }
   
       const classes = await this.classService.findByDate(date);
       return {
-        message: 'Endpoint público (sem autenticação)',
+        message: 'Public endpoint (no authentication)',
         date,
         totalClasses: classes.length,
         classes,
@@ -69,19 +69,19 @@ export class ClassController {
       };
     } catch (error) {
       console.error('Error in findByDatePublic:', error);
-      throw new HttpException('Erro interno do servidor', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException('Internal server error', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
   @Get('raw/:date')
   async findByDateRaw(@Param('date') date: string) {
     try {
-      // Validar formato da data (YYYY-MM-DD)
+      // Validate date format (YYYY-MM-DD)
       if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
         throw new HttpException('Invalid date format. Use YYYY-MM-DD', HttpStatus.BAD_REQUEST);
       }
   
-      // Consulta direta sem processamento para debug
+      // Direct query without processing for debug
       const rawClasses = await this.classService.findAll();
       const targetDate = date;
   
@@ -90,7 +90,7 @@ export class ClassController {
       });
   
       return {
-        message: 'Debug - dados brutos do banco',
+        message: 'Debug - raw database data',
         date,
         targetDate,
         totalClassesInDB: rawClasses.length,
@@ -107,7 +107,7 @@ export class ClassController {
       };
     } catch (error) {
       console.error('Error in findByDateRaw:', error);
-      throw new HttpException('Erro interno do servidor', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException('Internal server error', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -116,18 +116,18 @@ export class ClassController {
   async findByDate(@Query('date') date: string, @Request() req) {
     try {
       if (!date) {
-        throw new HttpException('Data é obrigatória', HttpStatus.BAD_REQUEST);
+        throw new HttpException('Date is required', HttpStatus.BAD_REQUEST);
       }
       
-      // Validar formato da data
+      // Validate date format
       const dateObj = new Date(date);
       if (isNaN(dateObj.getTime())) {
-        throw new HttpException('Data inválida', HttpStatus.BAD_REQUEST);
+        throw new HttpException('Invalid date', HttpStatus.BAD_REQUEST);
       }
 
-      // Validar se o usuário está autenticado
+      // Validate if user is authenticated
       if (!req.user || !req.user.id) {
-        throw new HttpException('Usuário não autenticado', HttpStatus.UNAUTHORIZED);
+        throw new HttpException('User not authenticated', HttpStatus.UNAUTHORIZED);
       }
       
       return await this.classService.findByDate(date, req.user.id);
@@ -136,7 +136,7 @@ export class ClassController {
         throw error;
       }
       console.error('Error in findByDate:', error);
-      throw new HttpException('Erro interno do servidor', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException('Internal server error', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -145,22 +145,22 @@ export class ClassController {
   async findByDatePath(@Param('date') date: string, @Request() req) {
     try {
       if (!date) {
-        throw new HttpException('Data é obrigatória', HttpStatus.BAD_REQUEST);
+        throw new HttpException('Date is required', HttpStatus.BAD_REQUEST);
       }
       
-      // Validar formato da data - aceitar formato YYYY-MM-DD
+      // Validate date format - accept YYYY-MM-DD format
       if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-        throw new HttpException('Data inválida. Use o formato YYYY-MM-DD', HttpStatus.BAD_REQUEST);
+        throw new HttpException('Invalid date. Use YYYY-MM-DD format', HttpStatus.BAD_REQUEST);
       }
       
       const dateObj = new Date(date + 'T00:00:00');
       if (isNaN(dateObj.getTime())) {
-        throw new HttpException('Data inválida', HttpStatus.BAD_REQUEST);
+        throw new HttpException('Invalid date', HttpStatus.BAD_REQUEST);
       }
 
-      // Validar se o usuário está autenticado
+      // Validate if user is authenticated
       if (!req.user || !req.user.id) {
-        throw new HttpException('Usuário não autenticado', HttpStatus.UNAUTHORIZED);
+        throw new HttpException('User not authenticated', HttpStatus.UNAUTHORIZED);
       }
       
       return await this.classService.findByDate(date, req.user.id);
@@ -169,7 +169,7 @@ export class ClassController {
         throw error;
       }
       console.error('Error in findByDatePath:', error);
-      throw new HttpException('Erro interno do servidor', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException('Internal server error', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -183,25 +183,25 @@ export class ClassController {
   @Get()
   @UseGuards(AuthGuard('jwt'))
   findAll(@Request() req) {
-    // Validar se o usuário está autenticado
+    // Validate if user is authenticated
     if (!req.user || !req.user.id) {
-      throw new HttpException('Usuário não autenticado', HttpStatus.UNAUTHORIZED);
+      throw new HttpException('User not authenticated', HttpStatus.UNAUTHORIZED);
     }
     return this.classService.findAll();
   }
 
-  // Endpoint que aceita data diretamente no path (formato YYYY-MM-DD)
+  // Endpoint that accepts date directly in path (YYYY-MM-DD format)
   @Get(':date')
   @UseGuards(AuthGuard('jwt'))
   async findByDateDirect(@Param('date') date: string, @Request() req) {
     try {
-      // Validar formato da data
+      // Validate date format
       if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-        throw new HttpException('Data inválida. Use o formato YYYY-MM-DD', HttpStatus.BAD_REQUEST);
+        throw new HttpException('Invalid date. Use YYYY-MM-DD format', HttpStatus.BAD_REQUEST);
       }
   
       if (!req.user || !req.user.id) {
-        throw new HttpException('Usuário não autenticado', HttpStatus.UNAUTHORIZED);
+        throw new HttpException('User not authenticated', HttpStatus.UNAUTHORIZED);
       }
   
       return await this.classService.findByDate(date, req.user.id);
@@ -210,21 +210,21 @@ export class ClassController {
         throw error;
       }
       console.error('Error in findByDateDirect:', error);
-      throw new HttpException('Erro interno do servidor', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException('Internal server error', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
   @Get(':id')
   @UseGuards(AuthGuard('jwt'))
   findOne(@Param('id') id: string, @Request() req) {
-    // Validar se o ID é um número
+    // Validate if ID is a number
     if (isNaN(+id)) {
-      throw new HttpException('ID inválido', HttpStatus.BAD_REQUEST);
+      throw new HttpException('Invalid ID', HttpStatus.BAD_REQUEST);
     }
     
-    // Validar se o usuário está autenticado
+    // Validate if user is authenticated
     if (!req.user || !req.user.id) {
-      throw new HttpException('Usuário não autenticado', HttpStatus.UNAUTHORIZED);
+      throw new HttpException('User not authenticated', HttpStatus.UNAUTHORIZED);
     }
     
     return this.classService.findOne(+id);
@@ -234,9 +234,9 @@ export class ClassController {
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles('admin', 'coach')
   update(@Param('id') id: string, @Body() updateClassDto: UpdateClassDto, @Request() req) {
-    // Validar se o ID é um número
+    // Validate if ID is a number
     if (isNaN(+id)) {
-      throw new HttpException('ID inválido', HttpStatus.BAD_REQUEST);
+      throw new HttpException('Invalid ID', HttpStatus.BAD_REQUEST);
     }
     
     return this.classService.update(+id, updateClassDto);
@@ -245,18 +245,18 @@ export class ClassController {
   @Patch(':id/cancel')
   @UseGuards(AuthGuard('jwt'))
   async cancelClass(@Param('id') id: string, @Request() req) {
-    // Aqui pode-se adicionar lógica para permitir apenas admin/coach
+    // Logic can be added here to allow only admin/coach
     const updated = await this.classService.update(+id, { status: 'cancelled' });
-    return { message: 'Aula cancelada com sucesso', updated };
+    return { message: 'Class cancelled successfully', updated };
   }
 
   @Delete(':id')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles('admin', 'coach')
   remove(@Param('id') id: string, @Request() req) {
-    // Validar se o ID é um número
+    // Validate if ID is a number
     if (isNaN(+id)) {
-      throw new HttpException('ID inválido', HttpStatus.BAD_REQUEST);
+      throw new HttpException('Invalid ID', HttpStatus.BAD_REQUEST);
     }
     
     return this.classService.remove(+id);

@@ -7,10 +7,10 @@ async function seedClasses() {
     driver: sqlite3.Database
   });
 
-  // Limpar tabela class
+  // Clear class table
   await db.run('DELETE FROM class');
 
-  // Horários de segunda a sexta
+  // Monday to Friday schedules
   const weekdays = [
     { time: '06:00', maxspots: 15 },
     { time: '07:00', maxspots: 15 },
@@ -21,12 +21,12 @@ async function seedClasses() {
     { time: '20:00', maxspots: 15 }
   ];
 
-  // Horário de sábado
+  // Saturday schedule
   const saturday = [
     { time: '09:00', maxspots: 26 }
   ];
 
-  // Gerar datas de 16 de julho a 16 de agosto de 2025
+  // Generate dates from July 16 to August 16, 2025
   const startDate = new Date('2025-07-16');
   const endDate = new Date('2025-08-16');
   
@@ -34,16 +34,16 @@ async function seedClasses() {
   let classId = 1;
 
   while (currentDate <= endDate) {
-    const dayOfWeek = currentDate.getDay(); // 0 = domingo, 1 = segunda, ..., 6 = sábado
+    const dayOfWeek = currentDate.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
     
-    // Pular domingos
+    // Skip Sundays
     if (dayOfWeek === 0) {
       currentDate.setDate(currentDate.getDate() + 1);
       continue;
     }
 
-    // Escolher horários baseado no dia da semana
-    const schedules = dayOfWeek === 6 ? saturday : weekdays; // 6 = sábado
+    // Choose schedules based on day of week
+    const schedules = dayOfWeek === 6 ? saturday : weekdays; // 6 = Saturday
 
     for (const schedule of schedules) {
       const dateStr = currentDate.toISOString().split('T')[0]; // YYYY-MM-DD
@@ -56,24 +56,24 @@ async function seedClasses() {
         dateStr,
         schedule.time,
         schedule.maxspots,
-        1 // wod_id padrão
+        1 // default wod_id
       ]);
 
       classId++;
     }
 
-    // Avançar para o próximo dia
+    // Advance to next day
     currentDate.setDate(currentDate.getDate() + 1);
   }
 
-  console.log('Aulas geradas com sucesso!');
-  console.log(`Total de aulas criadas: ${classId - 1}`);
+  console.log('Classes generated successfully!');
+  console.log(`Total classes created: ${classId - 1}`);
   
-  // Mostrar algumas aulas criadas como exemplo
+  // Show some created classes as example
   const sampleClasses = await db.all('SELECT * FROM class ORDER BY date, time LIMIT 10');
-  console.log('\nExemplos de aulas criadas:');
+  console.log('\nExample classes created:');
   sampleClasses.forEach(cls => {
-    console.log(`${cls.date} - ${cls.time} - ${cls.maxspots} lugares`);
+    console.log(`${cls.date} - ${cls.time} - ${cls.maxspots} spots`);
   });
 
   await db.close();
