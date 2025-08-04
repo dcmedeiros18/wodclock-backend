@@ -5,12 +5,27 @@ import { BookService } from './book.service';
 describe('BookController', () => {
   let controller: BookController;
 
+  const mockBookService = {
+    book: jest.fn(),
+    getUserFrequency: jest.fn(),
+    findByUserId: jest.fn(),
+    findAll: jest.fn(),
+    findOne: jest.fn(),
+    update: jest.fn(),
+    remove: jest.fn(),
+  };
+
   // This hook runs before each test
   beforeEach(async () => {
     // Create a testing module that includes the BookController and its service
     const module: TestingModule = await Test.createTestingModule({
       controllers: [BookController],  // Register the controller under test
-      providers: [BookService],       // Provide any required dependencies
+      providers: [
+        {
+          provide: BookService,
+          useValue: mockBookService,
+        },
+      ],
     }).compile();                     // Compile the module
 
     // Retrieve an instance of BookController from the testing module
