@@ -97,14 +97,14 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
 
-a comunicação entre frontend e backend  vai utilizar padão REST(RESTful) API.
-O REST utiliza o padrão de json como mensagem
-O REST aplica os seguintes verbos como padrão de comunicação nos ends points: 
+Communication between frontend and backend will use the REST (RESTful) API standard.
+REST uses the JSON standard as a message format.
+REST applies the following verbs as a communication standard at the endpoints:
 - GET
-- POST 
+- POST
 - UPDATE
 - DELETE
-- PATCH 
+- PATCH
 - OPTIONS
 
 Exemplo de um endpoint REST: 
